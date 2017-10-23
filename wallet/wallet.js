@@ -1,6 +1,6 @@
 const CryptoJS = require('crypto-js')
 const flovault = require('./flovault')
-const prepareCallback = require('../util/prepareCallback')
+const prepareCallback = require('../util').prepareCallback
 
 function Wallet (identifier, password, defaultCrypto) {
   if (!(this instanceof Wallet)) {
