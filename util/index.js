@@ -1,3 +1,4 @@
 module.exports = {
-  prepareCallback: require('./prepareCallback')
+  prepareCallback: require('./prepareCallback'),
+  simplePOST: require('./simplePOST')
 }
