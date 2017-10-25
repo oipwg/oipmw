@@ -13,12 +13,13 @@ test('simplePOST promise 400', () => {
 })
 
 test('simplePOST callback 400', (done) => {
-  expect.assertions(3)
+  expect.assertions(4)
 
   let cb = (err, res) => {
-    expect(err).toBeDefined()
-    expect(err.status).toBe(400)
-    expect(err.data).toBe('transaction already in block chain (code -27)')
+    expect(err).toBe(null)
+    expect(res).toBeDefined()
+    expect(res.status).toBe(400)
+    expect(res.data).toBe('transaction already in block chain (code -27)')
     done()
   }
 

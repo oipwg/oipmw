@@ -2,20 +2,18 @@ const axios = require('axios')
 const prepareCallback = require('./prepareCallback')
 
 let ax = axios.create()
+ax.defaults.validateStatus = function (status) {
+  return (status >= 200 && status < 300) || status === 400
+}
 
 function simplePOST (url, data, callback) {
   callback = prepareCallback(callback)
 
-  return ax.request({url: url, method: 'POST', data: data, validateStatus: function (status) { return true }})
+  return ax.post(url, data)
     .then(function (res) {
-      if (res.status === 200) {
-        callback(null, res)
-      } else {
-        callback(res, null)
-      }
+      callback(null, res)
       return Promise.resolve(res)
     }).catch(function (res) {
-      console.log(res)
       callback(res, null)
       return Promise.reject(res)
     })
