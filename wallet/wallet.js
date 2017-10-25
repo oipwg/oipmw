@@ -46,8 +46,7 @@ Wallet.prototype.load = function (callback) {
     return flovault.load(this.identifier).then((res) => {
       if (res.error === false) {
         let dec = decryptWallet(res.wallet, this.password, this.cryptoConfig)
-        console.log(dec)
-        callback()
+        callback(dec)
       }
     })
   })
