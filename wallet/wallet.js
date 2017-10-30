@@ -1,6 +1,8 @@
 const CryptoJS = require('crypto-js')
 const flovault = require('./flovault')
 const prepareCallback = require('../util').prepareCallback
+const Key = require('./key')
+const networks = require('../coins/networks')
 
 function Wallet (identifier, password, defaultCrypto) {
   if (!(this instanceof Wallet)) {
@@ -17,11 +19,17 @@ function Wallet (identifier, password, defaultCrypto) {
     iterations: 5
   }
   this.sharedKey = ''
-  this.addresses = []
+  this.keys = []
 }
 
 Wallet.prototype.load = function (callback) {
   callback = prepareCallback(callback)
+
+  if (this.sharedKey !== '') {
+    callback('Wallet already loaded')
+    return Promise.reject('Wallet already loaded')
+  }
+
   return flovault.checkLoad(this.identifier).then((res) => {
     if (res.encryption_settings.algo === 'aes') {
       this.cryptoConfig = {
@@ -46,7 +54,16 @@ Wallet.prototype.load = function (callback) {
     return flovault.load(this.identifier).then((res) => {
       if (res.error === false) {
         let dec = decryptWallet(res.wallet, this.password, this.cryptoConfig)
-        callback(dec)
+        this.sharedKey = dec.shared_key
+
+        if (Array.isArray(dec.keys)) {
+          this.keys = dec.keys
+        } else {
+          this.keys = addressesToKeys(dec.addresses)
+        }
+
+        console.dir(this.keys[0])
+        callback()
       }
     })
   })
@@ -59,6 +76,23 @@ function decryptWallet (wallet, password, cryptoConfig) {
   } catch (e) {
     return false
   }
+}
+
+function addressesToKeys (addresses) {
+  let keys = []
+  for (let addr_str in addresses) {
+    if (addresses.hasOwnProperty(addr_str)) {
+      let addr = addresses[addr_str]
+      let k = new Key(addr.priv)
+
+      networks.listSupportedCoins().forEach((coinName) => {
+        k.addCoin(coinName)
+      })
+
+      keys.push(k)
+    }
+  }
+  return keys
 }
 
 module.exports = Wallet

@@ -1,4 +1,5 @@
 const coinNetworks = require('../coins/networks/index')
+const bitcoin = require('bitcoinjs-lib')
 
 function Key (privKey, coins) {
   if (!(this instanceof Key)) {
@@ -7,8 +8,7 @@ function Key (privKey, coins) {
   }
 
   this.privKey = privKey
-  this.networks = []
-  this.balances = []
+  this.coins = {}
 
   if (Array.isArray(coins)) {
     if (coins.length > 0) {
@@ -25,9 +25,83 @@ function Key (privKey, coins) {
   }
 }
 
-Key.prototype.addCoin = function (coinNanme) {
-  if (coinNetworks.isSupported(coinNanme)) {
-    this.networks.push(coinNetworks.getNetwork(coinNanme))
+Key.prototype.addCoin = function (coinName) {
+  if (coinNetworks.isSupported(coinName)) {
+    if(this.coins[coinName]) {
+      return;
+    }
+    this.coins[coinName] = {}
+    this.coins[coinName].network = coinNetworks.getNetwork(coinName)
+    this.coins[coinName].ecKey = bitcoin.ECPair.fromWIF(this.privKey, coinNetworks.supportedNetworks)
+    this.coins[coinName].addresse = this.coins[coinName].ecKey.getAddress().toString()
+    this.coins[coinName].balance = 0
+    this.coins[coinName].transactions = []
+    this.coins[coinName].utxo = []
+    this.coins[coinName].stxo = []
+  }
+}
+
+Key.prototype.getAddress = function (coinName) {
+  return this.coins[coinName].addresse
+}
+
+Key.prototype.getBalance = function (coinName) {
+  return this.coins[coinName].balance
+}
+
+Key.prototype.getTransactions = function (coinName) {
+  return this.coins[coinName].transactions
+}
+
+Key.prototype.getUTXO = function (coinName) {
+  return this.coins[coinName].utxo
+}
+
+Key.prototype.payTo = function (coinName, address, amount) {
+  let coin = this.coins[coinName]
+
+  if (!coin) {
+    return {err: "coin doesn't exist"}
+  }
+
+  if (coin.balance < amount) {
+    return {err: "not enough unspent balance"}
+  }
+
+}
+
+Key.prototype.getBestUnspent = function (coin, amount) {
+  let subTotal = 0
+  let txo = []
+
+  let utxos = coin.utxo.sort((a, b) => {
+    // Sort first by confirmations then amount + to -
+    if (a.confirmations < b.confirmations) {
+      return -1
+    }
+    if (a.confirmations > b.confirmations) {
+      return 1
+    }
+    return b.amount - a.amount
+  })
+
+  let s = utxos.some((utxo) => {
+    subTotal += utxo.amount
+    txo.push(utxo)
+
+    if (subTotal > amount) {
+      return true
+    }
+  })
+
+  if (!s) {
+    return {err: "not enough unspent balance"}
+  } else {
+    return {
+      err: null,
+      subTotal: subTotal,
+      txo: txo
+    }
   }
 }
 
