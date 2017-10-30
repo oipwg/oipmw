@@ -6,7 +6,7 @@ let ax = axios.create()
 function simpleGET (url, params, callback) {
   callback = prepareCallback(callback)
 
-  if(params instanceof Function) {
+  if (params instanceof Function) {
     callback = params
     params = {}
   }

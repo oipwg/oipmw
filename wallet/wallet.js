@@ -26,8 +26,9 @@ Wallet.prototype.load = function (callback) {
   callback = prepareCallback(callback)
 
   if (this.sharedKey !== '') {
-    callback('Wallet already loaded')
-    return Promise.reject('Wallet already loaded')
+    let err = new Error('Wallet already loaded')
+    callback(err)
+    return Promise.reject(err)
   }
 
   return flovault.checkLoad(this.identifier).then((res) => {
@@ -80,9 +81,9 @@ function decryptWallet (wallet, password, cryptoConfig) {
 
 function addressesToKeys (addresses) {
   let keys = []
-  for (let addr_str in addresses) {
-    if (addresses.hasOwnProperty(addr_str)) {
-      let addr = addresses[addr_str]
+  for (let addrStr in addresses) {
+    if (addresses.hasOwnProperty(addrStr)) {
+      let addr = addresses[addrStr]
       let k = new Key(addr.priv)
 
       networks.listSupportedCoins().forEach((coinName) => {

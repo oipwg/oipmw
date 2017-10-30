@@ -5,7 +5,7 @@ const explorers = require('../explorers')
 exports.explorer = new explorers.Insight('https://insight.litecore.io/')
 exports.backupExplorers = []
 
-exports.estimateFee = function(tx) {
+exports.estimateFee = function (tx) {
   return 0.001
 }
 

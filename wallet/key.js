@@ -27,8 +27,8 @@ function Key (privKey, coins) {
 
 Key.prototype.addCoin = function (coinName) {
   if (coinNetworks.isSupported(coinName)) {
-    if(this.coins[coinName]) {
-      return;
+    if (this.coins[coinName]) {
+      return
     }
 
     this.coins[coinName] = {}
@@ -75,9 +75,8 @@ Key.prototype.payTo = function (coinName, address, amount) {
   }
 
   if (coin.balance < amount) {
-    return {err: "not enough unspent balance"}
+    return {err: 'not enough unspent balance'}
   }
-
 }
 
 Key.prototype.getBestUnspent = function (coin, amount) {
@@ -105,7 +104,7 @@ Key.prototype.getBestUnspent = function (coin, amount) {
   })
 
   if (!s) {
-    return {err: "not enough unspent balance"}
+    return {err: 'not enough unspent balance'}
   } else {
     return {
       err: null,

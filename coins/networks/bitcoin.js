@@ -9,7 +9,7 @@ exports.backupExplorers = [
   new explorers.Insight('https://www.localbitcoinschain.com')
 ]
 
-exports.estimateFee = function(tx) {
+exports.estimateFee = function (tx) {
   return 0.001
 }
 
