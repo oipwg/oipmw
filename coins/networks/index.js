@@ -17,7 +17,7 @@ function listSupportedCoins () {
 }
 
 function getNetwork (coinName) {
-  return supportedCoins[coinName]
+  return supportedCoins[coinName].network
 }
 
 function isSupported (coinName) {

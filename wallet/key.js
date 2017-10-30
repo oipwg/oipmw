@@ -30,9 +30,19 @@ Key.prototype.addCoin = function (coinName) {
     if(this.coins[coinName]) {
       return;
     }
+
     this.coins[coinName] = {}
     this.coins[coinName].network = coinNetworks.getNetwork(coinName)
     this.coins[coinName].ecKey = bitcoin.ECPair.fromWIF(this.privKey, coinNetworks.supportedNetworks)
+
+    // get raw private key and correct network type
+    if (this.coins[coinName].ecKey.network.wif !== this.coins[coinName].network.wif) {
+      this.coins[coinName].ecKey = new bitcoin.ECPair(this.coins[coinName].ecKey.d, null, {
+        compressed: this.coins[coinName].ecKey.compressed,
+        network: this.coins[coinName].network
+      })
+    }
+
     this.coins[coinName].addresse = this.coins[coinName].ecKey.getAddress().toString()
     this.coins[coinName].balance = 0
     this.coins[coinName].transactions = []
