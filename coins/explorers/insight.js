@@ -1,6 +1,9 @@
-const prepareCallback = require('../../util').prepareCallback
-const Transaction = require('bitcoinjs-lib').Transaction
-const simplePOST = require('../../util').simplePOST
+const bitcoinjs = require('bitcoinjs-lib')
+const Transaction = bitcoinjs.Transaction
+const util = require('../../util')
+const prepareCallback = util.prepareCallback
+const simplePOST = util.simplePOST
+const simpleGET = util.simpleGET
 
 function Insight (url) {
   if (!(this instanceof Insight)) {
@@ -24,6 +27,30 @@ Insight.prototype.pushTX = function (tx, callback) {
   }
 
   return simplePOST(this.url + '/api/tx/send', {rawtx: hex}, callback)
+}
+
+Insight.prototype.getUnspent = function (address, callback) {
+  callback = prepareCallback(callback)
+
+  return simpleGET(this.url + '/api/addr/' + address + '/utxo', callback)
+}
+
+Insight.prototype.getBalance = function (address, callback) {
+  callback = prepareCallback(callback)
+
+  return simpleGET(this.url + '/api/addr/' + address, {noTxList: 1}, callback)
+}
+
+Insight.prototype.getInfo = function (address, callback) {
+  callback = prepareCallback(callback)
+
+  return simpleGET(this.url + '/api/addr/' + address, callback)
+}
+
+Insight.prototype.getTransactions = function (address, callback) {
+  callback = prepareCallback(callback)
+
+  return simpleGET(this.url + '/api/addrs/' + address + '/txs', callback)
 }
 
 module.exports = Insight
