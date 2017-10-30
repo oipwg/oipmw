@@ -9,4 +9,8 @@ exports.backupExplorers = [
   new explorers.Insight('https://www.localbitcoinschain.com')
 ]
 
+exports.estimateFee = function(tx) {
+  return 0.001
+}
+
 exports.network = require('bitcoinjs-lib').networks.bitcoin
