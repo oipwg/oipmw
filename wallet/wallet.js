@@ -63,11 +63,22 @@ Wallet.prototype.load = function (callback) {
           this.keys = addressesToKeys(dec.addresses)
         }
 
-        console.dir(this.keys[0])
         callback()
       }
     })
   })
+}
+
+Wallet.prototype.refreshBalances = function (callback) {
+  callback = prepareCallback(callback)
+
+  let p = []
+
+  for (let key of this.keys) {
+    p.push(key.refreshBalance())
+  }
+
+  return Promise.all(p).then((res) => callback(null, res), (err) => callback(err))
 }
 
 function decryptWallet (wallet, password, cryptoConfig) {

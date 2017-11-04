@@ -41,3 +41,32 @@ test('wallet load callback', (done) => {
     done()
   })
 })
+
+test('wallet refresh balance promise', () => {
+  jest.setTimeout(30 * 1000)
+  expect.assertions(2)
+
+  let wal = new Wallet('75c1209-dbcac5a6-e040977-64a52ae', 'PublicDevAccount')
+
+  return wal.load().then(() => {
+    return wal.refreshBalances().then(() => {
+      expect(wal).toBeDefined()
+      expect(wal.keys[0].coins['florincoin'].balance).toBe(999700000)
+    })
+  })
+})
+
+test('wallet refresh balance callback', (done) => {
+  jest.setTimeout(30 * 1000)
+  expect.assertions(2)
+
+  let wal = new Wallet('75c1209-dbcac5a6-e040977-64a52ae', 'PublicDevAccount')
+
+  wal.load(() => {
+    wal.refreshBalances(() => {
+      expect(wal).toBeDefined()
+      expect(wal.keys[0].coins['florincoin'].balance).toBe(999700000)
+      done()
+    })
+  })
+})

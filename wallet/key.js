@@ -1,4 +1,5 @@
-const coinNetworks = require('../coins/networks/index')
+const coinNetworks = require('../coins/networks')
+const prepareCallback = require('../util/prepareCallback')
 const bitcoin = require('bitcoinjs-lib')
 
 function Key (privKey, coins) {
@@ -32,18 +33,18 @@ Key.prototype.addCoin = function (coinName) {
     }
 
     this.coins[coinName] = {}
-    this.coins[coinName].network = coinNetworks.getNetwork(coinName)
+    this.coins[coinName].coinInfo = coinNetworks.getCoinInfo(coinName)
     this.coins[coinName].ecKey = bitcoin.ECPair.fromWIF(this.privKey, coinNetworks.supportedNetworks)
 
     // get raw private key and correct network type
-    if (this.coins[coinName].ecKey.network.wif !== this.coins[coinName].network.wif) {
+    if (this.coins[coinName].ecKey.network.wif !== this.coins[coinName].coinInfo.network.wif) {
       this.coins[coinName].ecKey = new bitcoin.ECPair(this.coins[coinName].ecKey.d, null, {
         compressed: this.coins[coinName].ecKey.compressed,
-        network: this.coins[coinName].network
+        network: this.coins[coinName].coinInfo.network
       })
     }
 
-    this.coins[coinName].addresse = this.coins[coinName].ecKey.getAddress().toString()
+    this.coins[coinName].address = this.coins[coinName].ecKey.getAddress().toString()
     this.coins[coinName].balance = 0
     this.coins[coinName].transactions = []
     this.coins[coinName].utxo = []
@@ -52,7 +53,7 @@ Key.prototype.addCoin = function (coinName) {
 }
 
 Key.prototype.getAddress = function (coinName) {
-  return this.coins[coinName].addresse
+  return this.coins[coinName].address
 }
 
 Key.prototype.getBalance = function (coinName) {
@@ -71,7 +72,7 @@ Key.prototype.payTo = function (coinName, address, amount) {
   let coin = this.coins[coinName]
 
   if (!coin) {
-    return {err: "coin doesn't exist"}
+    return {err: 'coin doesn\'t exist'}
   }
 
   if (coin.balance < amount) {
@@ -112,6 +113,26 @@ Key.prototype.getBestUnspent = function (coin, amount) {
       txo: txo
     }
   }
+}
+
+Key.prototype.refreshBalance = function (callback) {
+  callback = prepareCallback(callback)
+
+  let p = []
+
+  for (let c in this.coins) {
+    if (!this.coins.hasOwnProperty(c)) {
+      continue
+    }
+    let coin = this.coins[c]
+    let _this = this
+    p.push(coin.coinInfo.explorer.getBalance(coin.address).then((res) => {
+      _this.coins[c].balance = res.data.balanceSat
+      return Promise.resolve({coinName: c, res: res.data})
+    }))
+  }
+
+  return Promise.all(p).then((res) => callback(null, res), (err) => callback(err))
 }
 
 module.exports = Key

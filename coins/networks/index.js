@@ -5,7 +5,7 @@ const supportedCoins = {
   'bitcoin_testnet': require('./bitcoin_testnet')
 }
 
-const supportedCoinsArray = [
+const supportedCoinsNetworksArray = [
   supportedCoins['florincoin'].network,
   supportedCoins['litecoin'].network,
   supportedCoins['bitcoin'].network,
@@ -20,13 +20,18 @@ function getNetwork (coinName) {
   return supportedCoins[coinName].network
 }
 
+function getCoinInfo (coinName) {
+  return supportedCoins[coinName]
+}
+
 function isSupported (coinName) {
   return typeof supportedCoins[coinName] !== 'undefined'
 }
 
 module.exports = {
   getNetwork: getNetwork,
-  supportedNetworks: supportedCoinsArray,
+  supportedNetworks: supportedCoinsNetworksArray,
+  getCoinInfo: getCoinInfo,
   isSupported: isSupported,
   listSupportedCoins: listSupportedCoins
 }
