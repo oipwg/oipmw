@@ -78,7 +78,43 @@ Wallet.prototype.refreshBalances = function (callback) {
     p.push(key.refreshBalance())
   }
 
-  return Promise.all(p).then((res) => callback(null, res), (err) => callback(err))
+  return Promise.all(p).then((res) => {
+    callback(null, res)
+    return Promise.resolve(res)
+  }, (err) => {
+    callback(err)
+    return Promise.reject(err)
+  })
+}
+
+Wallet.prototype.refreshUnspent = function (callback) {
+  callback = prepareCallback(callback)
+
+  let p = []
+
+  for (let key of this.keys) {
+    p.push(key.refreshUnspent())
+  }
+
+  return Promise.all(p).then((res) => {
+    callback(null, res)
+    return Promise.resolve(res)
+  }, (err) => {
+    callback(err)
+    return Promise.reject(err)
+  })
+}
+
+Wallet.prototype.refresh = function (callback) {
+  callback = prepareCallback(callback)
+
+  return Promise.all([this.refreshBalances(), this.refreshUnspent()]).then((res) => {
+    callback(null, res)
+    return Promise.resolve(res)
+  }, (err) => {
+    callback(err)
+    return Promise.reject(err)
+  })
 }
 
 function decryptWallet (wallet, password, cryptoConfig) {

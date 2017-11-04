@@ -125,14 +125,45 @@ Key.prototype.refreshBalance = function (callback) {
       continue
     }
     let coin = this.coins[c]
-    let _this = this
     p.push(coin.coinInfo.explorer.getBalance(coin.address).then((res) => {
-      _this.coins[c].balance = res.data.balanceSat
+      this.coins[c].balance = res.data.balanceSat
       return Promise.resolve({coinName: c, res: res.data})
     }))
   }
 
-  return Promise.all(p).then((res) => callback(null, res), (err) => callback(err))
+  return Promise.all(p).then((res) => {
+    callback(null, res)
+    return Promise.resolve(res)
+  }, (err) => {
+    callback(err)
+    return Promise.reject(err)
+  })
+}
+
+Key.prototype.refreshUnspent = function (callback) {
+  callback = prepareCallback(callback)
+
+  let p = []
+
+  for (let c in this.coins) {
+    if (!this.coins.hasOwnProperty(c)) {
+      continue
+    }
+    let coin = this.coins[c]
+    let _this = this
+    p.push(coin.coinInfo.explorer.getUnspent(coin.address).then((res) => {
+      _this.coins[c].utxo = res.data
+      return Promise.resolve({coinName: c, utxo: res.data})
+    }))
+  }
+
+  return Promise.all(p).then((res) => {
+    callback(null, res)
+    return Promise.resolve(res)
+  }, (err) => {
+    callback(err)
+    return Promise.reject(err)
+  })
 }
 
 module.exports = Key
