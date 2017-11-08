@@ -3,6 +3,7 @@ const util = require('../util')
 const prepareCallback = util.prepareCallback
 const isValidAddress = util.validation.isValidAddress
 const bitcoin = require('bitcoinjs-lib')
+const Coin = require('./coin')
 
 function Key (privKey, coins) {
   if (!(this instanceof Key)) {
@@ -34,23 +35,7 @@ Key.prototype.addCoin = function (coinName) {
       return
     }
 
-    this.coins[coinName] = {}
-    this.coins[coinName].coinInfo = coinNetworks.getCoinInfo(coinName)
-    this.coins[coinName].ecKey = bitcoin.ECPair.fromWIF(this.privKey, coinNetworks.supportedNetworks)
-
-    // get raw private key and correct network type
-    if (this.coins[coinName].ecKey.network.wif !== this.coins[coinName].coinInfo.network.wif) {
-      this.coins[coinName].ecKey = new bitcoin.ECPair(this.coins[coinName].ecKey.d, null, {
-        compressed: this.coins[coinName].ecKey.compressed,
-        network: this.coins[coinName].coinInfo.network
-      })
-    }
-
-    this.coins[coinName].address = this.coins[coinName].ecKey.getAddress().toString()
-    this.coins[coinName].balanceSat = 0
-    this.coins[coinName].transactions = []
-    this.coins[coinName].utxo = []
-    this.coins[coinName].stxo = []
+    this.coins[coinName] = new Coin(coinName, this.privKey)
   }
 }
 
