@@ -56,7 +56,7 @@ test('read_account promise', () => {
     '3944a2806982d40eab55068df19328b3f06f0bce924989099a2cfc21769cc72d91200da16b79a5c6145721e9d2543924').then((res) => {
       expect(res).toBeDefined()
       expect(res.error).toBe(false)
-      expect(res.data.email).toBe('publicdevaccount-flovault@bitspill.net')
+      expect(res.email).toBe('publicdevaccount-flovault@bitspill.net')
     })
 })
 
@@ -67,7 +67,7 @@ test('read_account callback', (done) => {
       expect(err).toBeNull()
       expect(res).toBeDefined()
       expect(res.error).toBe(false)
-      expect(res.data.email).toBe('publicdevaccount-flovault@bitspill.net')
+      expect(res.email).toBe('publicdevaccount-flovault@bitspill.net')
       done()
     })
 })

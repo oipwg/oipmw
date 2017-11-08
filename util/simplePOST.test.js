@@ -8,7 +8,7 @@ test('simplePOST promise 400', () => {
     .then((res) => {
       expect(res).toBeDefined()
       expect(res.status).toBe(400)
-      expect(res.data).toBe('transaction already in block chain (code -27)')
+      expect(res).toBe('transaction already in block chain (code -27)')
     })
 })
 
@@ -19,7 +19,7 @@ test('simplePOST callback 400', (done) => {
     expect(err).toBe(null)
     expect(res).toBeDefined()
     expect(res.status).toBe(400)
-    expect(res.data).toBe('transaction already in block chain (code -27)')
+    expect(res).toBe('transaction already in block chain (code -27)')
     done()
   }
 

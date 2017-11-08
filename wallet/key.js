@@ -159,8 +159,8 @@ Key.prototype.refreshBalance = function (callback) {
     }
     let coin = this.coins[c]
     p.push(coin.coinInfo.explorer.getBalance(coin.address).then((res) => {
-      this.coins[c].balanceSat = res.data.balanceSat
-      return Promise.resolve({coinName: c, res: res.data})
+      this.coins[c].balanceSat = res.balanceSat
+      return Promise.resolve({coinName: c, res: res})
     }))
   }
 
@@ -185,8 +185,8 @@ Key.prototype.refreshUnspent = function (callback) {
     let coin = this.coins[c]
     let _this = this
     p.push(coin.coinInfo.explorer.getUnspent(coin.address).then((res) => {
-      _this.coins[c].utxo = res.data
-      return Promise.resolve({coinName: c, utxo: res.data})
+      _this.coins[c].utxo = res
+      return Promise.resolve({coinName: c, utxo: res})
     }))
   }
 

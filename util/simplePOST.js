@@ -12,7 +12,7 @@ function simplePOST (url, data, callback) {
   return ax.post(url, data)
     .then(function (res) {
       callback(null, res)
-      return Promise.resolve(res)
+      return Promise.resolve(res.data)
     }).catch(function (res) {
       callback(res, null)
       return Promise.reject(res)

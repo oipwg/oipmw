@@ -14,7 +14,7 @@ function simpleGET (url, params, callback) {
   return ax.get(url, {params: params})
     .then(function (res) {
       callback(null, res)
-      return Promise.resolve(res)
+      return Promise.resolve(res.data)
     }).catch(function (res) {
       callback(res, null)
       return Promise.reject(res)
