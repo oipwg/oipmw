@@ -13,6 +13,7 @@ test('payto florincoin', () => {
   key.coins['florincoin'].utxo = [{
     'address': 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC',
     'amount': 9.997,
+    'satoshis': 999700000,
     'confirmations': 6,
     'confirmationsFromCache': true,
     'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',

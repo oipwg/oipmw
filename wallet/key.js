@@ -77,9 +77,10 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     return Promise.reject(new Error('coin doesn\'t exist'))
   }
 
-  let amountSat = amount * coin.coinInfo.satPerCoin
+  let amountSat = Math.floor(amount * coin.coinInfo.satPerCoin)
+  let feeSat = Math.floor((fee * coin.coinInfo.satPerCoin) || coin.coinInfo.minFee)
 
-  if (coin.balanceSat < amountSat) {
+  if (coin.balanceSat < amountSat + feeSat) {
     return Promise.reject(new Error('not enough unspent balance on key'))
   }
 
@@ -87,12 +88,11 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     return Promise.reject(new Error('invalid address'))
   }
 
-  let inputs = this.getBestUnspent(coin, amount)
+  let inputs = this.getBestUnspent(coin, amountSat + feeSat)
 
   if (inputs.err !== null) {
     return Promise.reject(inputs)
   }
-  let subTotalSat = Math.floor(inputs.subTotal * coin.coinInfo.satPerCoin)
 
   let tx = new bitcoin.TransactionBuilder(coin.coinInfo.network, coin.coinInfo.maxFeePerByte)
   tx.setVersion(coin.coinInfo.txVersion)
@@ -101,13 +101,18 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     tx.addInput(input.txid, input.vout)
   }
 
-  tx.addOutput(address, amountSat)
+  // if paying self don't create 2 outputs
+  if (address !== coin.address) {
+    tx.addOutput(address, amountSat)
+  } else {
+    amountSat = 0
+  }
 
   let calcFee = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
   if (fee !== undefined) {
-    calcFee = Math.max(calcFee, Math.floor(fee * coin.coinInfo.satPerCoin))
+    calcFee = Math.max(calcFee, feeSat)
   }
-  tx.addOutput(coin.address, subTotalSat - amountSat - calcFee)
+  tx.addOutput(coin.address, inputs.subTotal - amountSat - calcFee)
 
   for (let i = 0; i < inputs.txo.length; i++) {
     tx.sign(i, coin.ecKey)
@@ -122,7 +127,7 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   return coin.coinInfo.explorer.pushTX(rawTx)
 })
 
-Key.prototype.getBestUnspent = function (coin, amount) {
+Key.prototype.getBestUnspent = function (coin, amountSat) {
   let subTotal = 0
   let txo = []
 
@@ -134,14 +139,14 @@ Key.prototype.getBestUnspent = function (coin, amount) {
     if (a.confirmations > b.confirmations) {
       return 1
     }
-    return b.amount - a.amount
+    return b.satoshis - a.satoshis
   })
 
   let s = utxos.some((utxo) => {
-    subTotal += utxo.amount
+    subTotal += utxo.satoshis
     txo.push(utxo)
 
-    if (subTotal > amount) {
+    if (subTotal > amountSat) {
       return true
     }
   })
