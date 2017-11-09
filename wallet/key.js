@@ -104,7 +104,7 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   tx.addOutput(address, amountSat)
 
   let calcFee = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
-  if ( fee !== undefined) {
+  if (fee !== undefined) {
     calcFee = Math.max(calcFee, Math.floor(fee * coin.coinInfo.satPerCoin))
   }
   tx.addOutput(coin.address, subTotalSat - amountSat - calcFee)
