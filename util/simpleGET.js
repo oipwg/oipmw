@@ -1,24 +1,10 @@
 const axios = require('axios')
-const prepareCallback = require('./prepareCallback')
+const callbackify = require('callbackify')
 
 let ax = axios.create()
 
-function simpleGET (url, params, callback) {
-  callback = prepareCallback(callback)
-
-  if (params instanceof Function) {
-    callback = params
-    params = {}
-  }
-
-  return ax.get(url, {params: params})
-    .then(function (res) {
-      callback(null, res)
-      return Promise.resolve(res.data)
-    }).catch(function (res) {
-      callback(res, null)
-      return Promise.reject(res)
-    })
+function simpleGET (url, params) {
+  return ax.get(url, {params: params}).then((res) => Promise.resolve(res.data))
 }
 
-module.exports = simpleGET
+module.exports = callbackify(simpleGET)

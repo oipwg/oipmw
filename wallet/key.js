@@ -1,8 +1,8 @@
 const coinNetworks = require('../coins/networks')
 const util = require('../util')
-const prepareCallback = util.prepareCallback
 const isValidAddress = util.validation.isValidAddress
 const bitcoin = require('bitcoinjs-lib')
+const callbackify = require('callbackify')
 const Coin = require('./coin')
 
 function Key (privKey, coins) {
@@ -59,7 +59,7 @@ Key.prototype.getUTXO = function (coinName) {
   return this.coins[coinName].utxo
 }
 
-Key.prototype.payTo = function (coinName, address, amount, txComment) {
+Key.prototype.payTo = callbackify(function (coinName, address, amount, txComment) {
   if (coinName === 'florincoin') {
     txComment = txComment || ''
   } else {
@@ -112,7 +112,7 @@ Key.prototype.payTo = function (coinName, address, amount, txComment) {
   }
 
   return coin.coinInfo.explorer.pushTX(rawTx)
-}
+})
 
 Key.prototype.getBestUnspent = function (coin, amount) {
   let subTotal = 0
@@ -149,9 +149,7 @@ Key.prototype.getBestUnspent = function (coin, amount) {
   }
 }
 
-Key.prototype.refreshBalance = function (callback) {
-  callback = prepareCallback(callback)
-
+Key.prototype.refreshBalance = callbackify(function () {
   let p = []
 
   for (let c in this.coins) {
@@ -165,18 +163,10 @@ Key.prototype.refreshBalance = function (callback) {
     }))
   }
 
-  return Promise.all(p).then((res) => {
-    callback(null, res)
-    return Promise.resolve(res)
-  }, (err) => {
-    callback(err)
-    return Promise.reject(err)
-  })
-}
+  return Promise.all(p)
+})
 
-Key.prototype.refreshUnspent = function (callback) {
-  callback = prepareCallback(callback)
-
+Key.prototype.refreshUnspent = callbackify(function () {
   let p = []
 
   for (let c in this.coins) {
@@ -191,13 +181,7 @@ Key.prototype.refreshUnspent = function (callback) {
     }))
   }
 
-  return Promise.all(p).then((res) => {
-    callback(null, res)
-    return Promise.resolve(res)
-  }, (err) => {
-    callback(err)
-    return Promise.reject(err)
-  })
-}
+  return Promise.all(p)
+})
 
 module.exports = Key

@@ -1,20 +1,16 @@
 const axios = require('axios')
-const util = require('../util')
-const prepareCallback = util.prepareCallback
+const callbackify = require('callbackify')
 
 let ax = axios.create({
   baseURL: 'https://flovault.alexandria.io/wallet/'
 })
 
-function checkLoad (identifier, callback) {
-  callback = prepareCallback(callback)
-
+function checkLoad (identifier) {
   if (!isValidIdentifier(identifier)) {
     let ret = {
       error: 'malformed identifier',
       message: 'malformed identifier'
     }
-    callback(ret)
     return Promise.reject(ret)
   }
 
@@ -23,16 +19,13 @@ function checkLoad (identifier, callback) {
       let data = response.data
 
       if (data.error) {
-        callback(data.error)
         return Promise.reject(data.error)
       }
 
       if (data.auth_key_isvalid === true) {
-        callback(null, data)
         return Promise.resolve(data)
       }
 
-      callback(data)
       return Promise.reject(data)
     })
     .catch(function (error) {
@@ -40,20 +33,16 @@ function checkLoad (identifier, callback) {
         error: error,
         message: 'checkload request failed'
       }
-      callback(ret)
       return Promise.reject(ret)
     })
 }
 
-function load (identifier, callback) {
-  callback = prepareCallback(callback)
-
+function load (identifier) {
   if (!isValidIdentifier(identifier)) {
     let ret = {
       error: 'malformed identifier',
       message: 'malformed identifier'
     }
-    callback(ret)
     return Promise.reject(ret)
   }
 
@@ -62,11 +51,9 @@ function load (identifier, callback) {
       let data = response.data
 
       if (data.error !== false) {
-        callback(data.error)
         return Promise.reject(data.error)
       }
 
-      callback(null, data)
       return Promise.resolve(data)
     })
     .catch(function (error) {
@@ -74,20 +61,16 @@ function load (identifier, callback) {
         error: error,
         message: 'load request failed'
       }
-      callback(ret)
       return Promise.reject(ret)
     })
 }
 
-function readAccount (identifier, sharedKey, callback) {
-  callback = prepareCallback(callback)
-
+function readAccount (identifier, sharedKey) {
   if (!isValidIdentifier(identifier)) {
     let ret = {
       error: 'malformed identifier',
       message: 'malformed identifier'
     }
-    callback(ret)
     return Promise.reject(ret)
   }
   if (!isValidSharedKey(sharedKey)) {
@@ -95,7 +78,6 @@ function readAccount (identifier, sharedKey, callback) {
       error: 'malformed sharedKey',
       message: 'malformed sharedKey'
     }
-    callback(ret)
     return Promise.reject(ret)
   }
 
@@ -104,11 +86,8 @@ function readAccount (identifier, sharedKey, callback) {
       let data = response.data
 
       if (data.error !== false) {
-        callback(data)
         return Promise.reject(data)
       }
-
-      callback(null, data.data)
       return Promise.resolve(data.data)
     })
     .catch(function (error) {
@@ -116,7 +95,6 @@ function readAccount (identifier, sharedKey, callback) {
         error: error,
         message: 'read_account request failed'
       }
-      callback(ret)
       return Promise.reject(ret)
     })
 }
@@ -132,8 +110,8 @@ function isValidSharedKey (sharedKey) {
 }
 
 module.exports = {
-  checkLoad: checkLoad,
-  load: load,
-  readAccount: readAccount,
-  isValidIdentifier: isValidIdentifier
+  checkLoad: callbackify(checkLoad),
+  load: callbackify(load),
+  readAccount: callbackify(readAccount),
+  isValidIdentifier: callbackify(isValidIdentifier)
 }

@@ -1,6 +1,6 @@
 const CryptoJS = require('crypto-js')
 const flovault = require('./flovault')
-const prepareCallback = require('../util').prepareCallback
+const callbackify = require('callbackify')
 const Key = require('./key')
 const networks = require('../coins/networks')
 
@@ -22,12 +22,9 @@ function Wallet (identifier, password, defaultCrypto) {
   this.keys = []
 }
 
-Wallet.prototype.load = function (callback) {
-  callback = prepareCallback(callback)
-
+Wallet.prototype.load = callbackify(function () {
   if (this.sharedKey !== '') {
     let err = new Error('Wallet already loaded')
-    callback(err)
     return Promise.reject(err)
   }
 
@@ -40,14 +37,12 @@ Wallet.prototype.load = function (callback) {
       this.cryptoConfig.iterations = res.encryption_settings.iterations
     } else {
       let err = new Error('Unsupported wallet encryption')
-      callback(err)
       return Promise.reject(err)
     }
 
     if (res.gauth_enabled === true) {
       if (res.auth_key_isvalid !== true) {
         let err = new Error('2FA wallets not supported... yet')
-        callback(err)
         return Promise.reject(err)
       }
     }
@@ -62,60 +57,34 @@ Wallet.prototype.load = function (callback) {
         } else {
           this.keys = addressesToKeys(dec.addresses)
         }
-
-        callback()
       }
     })
   })
-}
+})
 
-Wallet.prototype.refreshBalances = function (callback) {
-  callback = prepareCallback(callback)
-
+Wallet.prototype.refreshBalances = callbackify(function () {
   let p = []
 
   for (let key of this.keys) {
     p.push(key.refreshBalance())
   }
 
-  return Promise.all(p).then((res) => {
-    callback(null, res)
-    return Promise.resolve(res)
-  }, (err) => {
-    callback(err)
-    return Promise.reject(err)
-  })
-}
+  return Promise.all(p)
+})
 
-Wallet.prototype.refreshUnspent = function (callback) {
-  callback = prepareCallback(callback)
-
+Wallet.prototype.refreshUnspent = callbackify(function () {
   let p = []
 
   for (let key of this.keys) {
     p.push(key.refreshUnspent())
   }
 
-  return Promise.all(p).then((res) => {
-    callback(null, res)
-    return Promise.resolve(res)
-  }, (err) => {
-    callback(err)
-    return Promise.reject(err)
-  })
-}
+  return Promise.all(p)
+})
 
-Wallet.prototype.refresh = function (callback) {
-  callback = prepareCallback(callback)
-
-  return Promise.all([this.refreshBalances(), this.refreshUnspent()]).then((res) => {
-    callback(null, res)
-    return Promise.resolve(res)
-  }, (err) => {
-    callback(err)
-    return Promise.reject(err)
-  })
-}
+Wallet.prototype.refresh = callbackify(function () {
+  return Promise.all([this.refreshBalances(), this.refreshUnspent()])
+})
 
 function decryptWallet (wallet, password, cryptoConfig) {
   try {

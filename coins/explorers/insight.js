@@ -1,7 +1,7 @@
 const bitcoinjs = require('bitcoinjs-lib')
+const callbackify = require('callbackify')
 const Transaction = bitcoinjs.Transaction
 const util = require('../../util')
-const prepareCallback = util.prepareCallback
 const simplePOST = util.simplePOST
 const simpleGET = util.simpleGET
 
@@ -13,7 +13,7 @@ function Insight (url, options) {
 
   this.version = 0
   this.url = url
-  this.apiUrl = url + '/api'
+  this.apiUrl = this.url + '/api'
   this.satPerCoin = 1e8
 
   if (options) {
@@ -21,7 +21,7 @@ function Insight (url, options) {
       this.satPerCoin = options.satPerCoin
     }
     if (options.apiPath !== undefined) {
-      this.apiUrl = url + options.apiPath
+      this.apiUrl = this.url + options.apiPath
     }
     if (options.apiUrl !== undefined) {
       this.apiUrl = options.apiUrl
@@ -29,7 +29,7 @@ function Insight (url, options) {
   }
 }
 
-Insight.prototype.init = function () {
+Insight.prototype.init = callbackify(function () {
   if (this.version !== 0) {
     return Promise.resolve()
   }
@@ -46,11 +46,9 @@ Insight.prototype.init = function () {
       return Promise.reject(new Error('unsupported insight version ' + ver))
     }
   })
-}
+})
 
-Insight.prototype.pushTX = function (tx, callback) {
-  callback = prepareCallback(callback)
-
+Insight.prototype.pushTX = callbackify(function (tx) {
   let hex
   if (tx instanceof Transaction) {
     hex = tx.toHex()
@@ -61,7 +59,7 @@ Insight.prototype.pushTX = function (tx, callback) {
   }
 
   return this.init()
-    .then(() => simplePOST(this.apiUrl + '/tx/send', {rawtx: hex}, callback))
+    .then(() => simplePOST(this.apiUrl + '/tx/send', {rawtx: hex}))
     .then((res) => {
       if (this.version === 2) {
         // v2 APIs return the txid directly so wrap it with an object
@@ -77,11 +75,9 @@ Insight.prototype.pushTX = function (tx, callback) {
         }
       }
     })
-}
+})
 
-Insight.prototype.getUnspent = function (address, callback) {
-  callback = prepareCallback(callback)
-
+Insight.prototype.getUnspent = callbackify(function (address) {
   return this.init()
     .then(() => simpleGET(this.apiUrl + '/addr/' + address + '/utxo'))
     .then((res) => {
@@ -94,27 +90,21 @@ Insight.prototype.getUnspent = function (address, callback) {
       }
       return Promise.resolve(ret)
     })
-}
+})
 
-Insight.prototype.getBalance = function (address, callback) {
-  callback = prepareCallback(callback)
-
+Insight.prototype.getBalance = callbackify(function (address) {
   return this.init()
-    .then(() => simpleGET(this.apiUrl + '/addr/' + address, {noTxList: 1}, callback))
-}
+    .then(() => simpleGET(this.apiUrl + '/addr/' + address, {noTxList: 1}))
+})
 
-Insight.prototype.getInfo = function (address, callback) {
-  callback = prepareCallback(callback)
-
+Insight.prototype.getInfo = callbackify(function (address) {
   return this.init()
-    .then(() => simpleGET(this.apiUrl + '/addr/' + address, callback))
-}
+    .then(() => simpleGET(this.apiUrl + '/addr/' + address))
+})
 
-Insight.prototype.getTransactions = function (address, callback) {
-  callback = prepareCallback(callback)
-
+Insight.prototype.getTransactions = callbackify(function (address) {
   return this.init()
-    .then(() => simpleGET(this.apiUrl + '/addrs/' + address + '/txs', callback))
-}
+    .then(() => simpleGET(this.apiUrl + '/addrs/' + address + '/txs'))
+})
 
 module.exports = Insight
