@@ -58,12 +58,12 @@ test('key payto testnet', () => {
     },
     {
       'address': 'mnv1SyZ9cfSt7xMJCCk6tbKpEKBA5gBknL',
-      'txid': 'd1699bd8dd12b2a5e96d922ee3845dd00e0e8a122ff9d5e94f16fd0d411c2e70',
+      'txid': 'aac726419638daeb474d4de0cf41199ba7c1687493f865e0a52174a210df4178',
       'vout': 1,
       'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',
-      'amount': 0.53926225,
-      'satoshis': 53926225,
-      'height': 1225853,
+      'amount': 0.03826225,
+      'satoshis': 3826225,
+      'height': 1225885,
       'confirmations': 26
     }
   ]
@@ -71,6 +71,6 @@ test('key payto testnet', () => {
   key.coins['bitcoin_testnet'].balanceSat = 323926225
 
   return key.payTo('bitcoin_testnet', 'mnjsTntSJP6E14jVcNsNFBje3tSo7y4pGi', 0.5).then((res) => {
-    expect(res).toBe('aac726419638daeb474d4de0cf41199ba7c1687493f865e0a52174a210df4178')
+    expect(res).toBe('32941968b44faaf224d58f6c21cb1cb58e36fdb168d68dfa2fbfb4254a6454cc')
   })
 })

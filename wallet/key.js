@@ -87,6 +87,7 @@ Key.prototype.payTo = function (coinName, address, amount, txComment) {
   if (inputs.err !== null) {
     return Promise.reject(inputs)
   }
+  let subTotalSat = Math.floor(inputs.subTotal * coin.coinInfo.satPerCoin)
 
   let tx = new bitcoin.TransactionBuilder(coin.coinInfo.network, coin.coinInfo.maxFee)
   tx.setVersion(coin.coinInfo.txVersion)
@@ -98,7 +99,7 @@ Key.prototype.payTo = function (coinName, address, amount, txComment) {
   tx.addOutput(address, amountSat)
 
   let feeSat = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
-  tx.addOutput(coin.address, coin.balanceSat - amountSat - feeSat)
+  tx.addOutput(coin.address, subTotalSat - amountSat - feeSat)
 
   for (let i = 0; i < inputs.txo.length; i++) {
     tx.sign(i, coin.ecKey)

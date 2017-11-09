@@ -16,7 +16,7 @@ function Insight (url, options) {
   this.apiUrl = url + '/api'
   this.satPerCoin = 1e8
 
-  if (Object.isObject(options)) {
+  if (options) {
     if (options.satPerCoin !== undefined) {
       this.satPerCoin = options.satPerCoin
     }
@@ -40,11 +40,12 @@ Insight.prototype.init = function () {
       this.version = 2
     } else if (ver.startsWith('0.4')) {
       this.version = 4
+    } else if (ver.startsWith('5.0')) {
+      this.version = 5
     } else {
       return Promise.reject(new Error('unsupported insight version ' + ver))
     }
   })
-
 }
 
 Insight.prototype.pushTX = function (tx, callback) {
@@ -59,12 +60,21 @@ Insight.prototype.pushTX = function (tx, callback) {
     hex = tx
   }
 
-  return this.init().then(simplePOST(this.apiUrl + '/tx/send', {rawtx: hex}, callback))
+  return this.init()
+    .then(() => simplePOST(this.apiUrl + '/tx/send', {rawtx: hex}, callback))
     .then((res) => {
       if (this.version === 2) {
-        return Promise.resolve({
-          txid: res
-        })
+        // v2 APIs return the txid directly so wrap it with an object
+        // errors have an error code in parenthesis at the end
+        // error codes are not wrapped in an object rather returned bare
+        // ToDo: promise.reject if it's an error
+        if (res.indexOf('(') === -1) {
+          return Promise.resolve({
+            txid: res
+          })
+        } else {
+          return res
+        }
       }
     })
 }
@@ -72,32 +82,39 @@ Insight.prototype.pushTX = function (tx, callback) {
 Insight.prototype.getUnspent = function (address, callback) {
   callback = prepareCallback(callback)
 
-  return this.init().then(simpleGET(this.apiUrl + '/addr/' + address + '/utxo', callback))
+  return this.init()
+    .then(() => simpleGET(this.apiUrl + '/addr/' + address + '/utxo'))
     .then((res) => {
+      let ret = res
       if (this.version === 2) {
-        let ret = res
-        ret.satoshis = Math.floor(ret.amount * this.satPerCoin)
-        return Promise.resolve(ret)
+        // v2 APIs don't have a satoshis field, so calculate it
+        for (let i = 0; i < ret.length; i++) {
+          ret[i].satoshis = Math.floor(ret[i].amount * this.satPerCoin)
+        }
       }
+      return Promise.resolve(ret)
     })
 }
 
 Insight.prototype.getBalance = function (address, callback) {
   callback = prepareCallback(callback)
 
-  return this.init().then(simpleGET(this.apiUrl + '/addr/' + address, {noTxList: 1}, callback))
+  return this.init()
+    .then(() => simpleGET(this.apiUrl + '/addr/' + address, {noTxList: 1}, callback))
 }
 
 Insight.prototype.getInfo = function (address, callback) {
   callback = prepareCallback(callback)
 
-  return this.init().then(simpleGET(this.apiUrl + '/addr/' + address, callback))
+  return this.init()
+    .then(() => simpleGET(this.apiUrl + '/addr/' + address, callback))
 }
 
 Insight.prototype.getTransactions = function (address, callback) {
   callback = prepareCallback(callback)
 
-  return this.init().then(simpleGET(this.apiUrl + '/addrs/' + address + '/txs', callback))
+  return this.init()
+    .then(() => simpleGET(this.apiUrl + '/addrs/' + address + '/txs', callback))
 }
 
 module.exports = Insight

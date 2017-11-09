@@ -108,8 +108,8 @@ function readAccount (identifier, sharedKey, callback) {
         return Promise.reject(data)
       }
 
-      callback(null, data)
-      return Promise.resolve(data)
+      callback(null, data.data)
+      return Promise.resolve(data.data)
     })
     .catch(function (error) {
       let ret = {

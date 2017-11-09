@@ -11,7 +11,7 @@ function simplePOST (url, data, callback) {
 
   return ax.post(url, data)
     .then(function (res) {
-      callback(null, res)
+      callback(null, res.data)
       return Promise.resolve(res.data)
     }).catch(function (res) {
       callback(res, null)
