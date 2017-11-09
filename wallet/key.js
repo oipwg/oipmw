@@ -59,7 +59,12 @@ Key.prototype.getUTXO = function (coinName) {
   return this.coins[coinName].utxo
 }
 
-Key.prototype.payTo = callbackify(function (coinName, address, amount, txComment) {
+Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, fee, txComment) {
+  if (typeof fee === 'string') {
+    txComment = fee
+    fee = undefined
+  }
+
   if (coinName === 'florincoin') {
     txComment = txComment || ''
   } else {
@@ -98,8 +103,11 @@ Key.prototype.payTo = callbackify(function (coinName, address, amount, txComment
 
   tx.addOutput(address, amountSat)
 
-  let feeSat = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
-  tx.addOutput(coin.address, subTotalSat - amountSat - feeSat)
+  let calcFee = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
+  if ( fee !== undefined) {
+    calcFee = Math.max(calcFee, Math.floor(fee * coin.coinInfo.satPerCoin))
+  }
+  tx.addOutput(coin.address, subTotalSat - amountSat - calcFee)
 
   for (let i = 0; i < inputs.txo.length; i++) {
     tx.sign(i, coin.ecKey)
