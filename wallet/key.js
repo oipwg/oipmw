@@ -89,7 +89,7 @@ Key.prototype.payTo = callbackify(function (coinName, address, amount, txComment
   }
   let subTotalSat = Math.floor(inputs.subTotal * coin.coinInfo.satPerCoin)
 
-  let tx = new bitcoin.TransactionBuilder(coin.coinInfo.network, coin.coinInfo.maxFee)
+  let tx = new bitcoin.TransactionBuilder(coin.coinInfo.network, coin.coinInfo.maxFeePerByte)
   tx.setVersion(coin.coinInfo.txVersion)
 
   for (let input of inputs.txo) {
