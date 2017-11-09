@@ -31,6 +31,44 @@ test('payto florincoin', () => {
   })
 })
 
+
+test('payto self  florincoin', () => {
+  let key = new Key('RA4KK8pCiFuviH7M4e2k65mmLCH2bLr7kJ6wAHP2TPMdBPVnJoqW', 'florincoin')
+
+  key.coins['florincoin'].utxo = [
+    {
+      "address": "FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s",
+      "txid": "cdf9581d413286dc1c6ccb7d2b0ca105879c29932364668d579ed2621dffe60a",
+      "vout": 0,
+      "ts": 1510069808,
+      "scriptPubKey": "76a9144f3a411d38966b259484338306c46924e616b53388ac",
+      "amount": 1,
+      "satoshis": 100000000,
+      "confirmations": 6,
+      "confirmationsFromCache": true
+    },
+    {
+      "address": "FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s",
+      "txid": "02c85b5cacecfeede339bb7874f250c7731d986c727283ee0c91cf5c96e52b11",
+      "vout": 0,
+      "ts": 1508836658,
+      "scriptPubKey": "76a9144f3a411d38966b259484338306c46924e616b53388ac",
+      "amount": 10,
+      "satoshis": 1000000000,
+      "confirmations": 6,
+      "confirmationsFromCache": true
+    }
+  ]
+
+  key.coins['florincoin'].balanceSat = 1100000000
+
+  expect.hasAssertions()
+
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, 'i r kool').then((res) => {
+    expect(res).toBe('e12803c36c34046b15ea6c8a1494b23a3626b6e2ad6dfdcd84ac72ab947e97dc')
+  })
+})
+
 test('key payto testnet', () => {
   expect.hasAssertions()
 
