@@ -62,6 +62,22 @@ Wallet.prototype.load = callbackify(function () {
   })
 })
 
+Wallet.prototype.payTo = callbackify.variadic(function (fromAddress, toAddress, amount, fee, txComment) {
+  let key, coinName
+  for (let k of this.keys) {
+    let name = k.getNameFromAddress(fromAddress)
+    if (name !== '') {
+      key = k
+      coinName = name
+    }
+  }
+  if (key === undefined) {
+    return Promise.reject(new Error('No key found for address ' + fromAddress))
+  }
+
+  return key.payTo(coinName, toAddress, amount, fee, txComment)
+})
+
 Wallet.prototype.refreshBalances = callbackify(function () {
   let p = []
 

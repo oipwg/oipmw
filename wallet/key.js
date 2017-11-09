@@ -59,6 +59,17 @@ Key.prototype.getUTXO = function (coinName) {
   return this.coins[coinName].utxo
 }
 
+Key.prototype.getNameFromAddress = function (addr) {
+  for (let c in this.coins) {
+    if (this.coins.hasOwnProperty(c)) {
+      if (this.coins[c].address === addr) {
+        return c
+      }
+    }
+  }
+  return ''
+}
+
 Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, fee, txComment) {
   if (typeof fee === 'string') {
     txComment = fee
