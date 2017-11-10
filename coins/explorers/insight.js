@@ -66,7 +66,9 @@ Insight.prototype.pushTX = callbackify(function (tx) {
         // errors have an error code in parenthesis at the end
         // error codes are not wrapped in an object rather returned bare
         // ToDo: promise.reject if it's an error
-        if (res.indexOf('(') === -1) {
+        if (res instanceof Object) {
+          return res
+        } else if (res.indexOf('(') === -1) {
           return Promise.resolve({
             txid: res
           })

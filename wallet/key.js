@@ -108,8 +108,10 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   let tx = new bitcoin.TransactionBuilder(coin.coinInfo.network, coin.coinInfo.maxFeePerByte)
   tx.setVersion(coin.coinInfo.txVersion)
 
+  let spentInputs = []
   for (let input of inputs.txo) {
     tx.addInput(input.txid, input.vout)
+    spentInputs.push(input.txid)
   }
 
   // if paying self don't create 2 outputs
@@ -123,7 +125,9 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   if (fee !== undefined) {
     calcFee = Math.max(calcFee, feeSat)
   }
-  tx.addOutput(coin.address, inputs.subTotal - amountSat - calcFee)
+
+  let changeSat = inputs.subTotal - amountSat - calcFee
+  let changeVout = tx.addOutput(coin.address, changeSat)
 
   for (let i = 0; i < inputs.txo.length; i++) {
     tx.sign(i, coin.ecKey)
@@ -135,7 +139,12 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     rawTx += bitcoin.bufferutils.varIntBuffer(txComment.length).toString('hex') + Buffer.from(txComment).toString('hex')
   }
 
-  return coin.coinInfo.explorer.pushTX(rawTx)
+  return coin.coinInfo.explorer.pushTX(rawTx).then((res) => {
+    if (res.txid) {
+      coin.addUnconfirmed(res.txid, changeVout, changeSat / coin.coinInfo.satPerCoin, changeSat, spentInputs)
+    }
+    return Promise.resolve(res)
+  })
 })
 
 Key.prototype.getBestUnspent = function (coin, amountSat) {
@@ -198,10 +207,10 @@ Key.prototype.refreshUnspent = callbackify(function () {
       continue
     }
     let coin = this.coins[c]
-    let _this = this
     p.push(coin.coinInfo.explorer.getUnspent(coin.address).then((res) => {
-      _this.coins[c].utxo = res
-      return Promise.resolve({coinName: c, utxo: res})
+      this.coins[c].utxo = res
+      coin.mergeTxo()
+      return Promise.resolve({coinName: c, utxo: coin.utxo})
     }))
   }
 
