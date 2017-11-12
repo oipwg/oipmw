@@ -1,4 +1,5 @@
 const CryptoJS = require('crypto-js')
+const bitcoin = require('bitcoinjs-lib')
 const flovault = require('./flovault')
 const callbackify = require('callbackify')
 const Key = require('./key')
@@ -173,6 +174,20 @@ Wallet.prototype.toJSON = function () {
     shared_key: this.sharedKey,
     keys: this.keys
   }
+}
+
+Wallet.prototype.newAddress = function(coinName) {
+  if (!networks.isSupported(coinName)) {
+    return ''
+  }
+
+  let net = networks.getNetwork(coinName)
+  let keyPair = bitcoin.ECPair.makeRandom({network: net})
+  let k = new Key(keyPair.toWIF(), coinName)
+
+  this.keys.push(k)
+
+  return keyPair.getAddress()
 }
 
 module.exports = Wallet

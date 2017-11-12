@@ -1,5 +1,6 @@
 const CryptoJS = require('crypto-js')
 const Wallet = require('./wallet')
+const isValidAddress = require('../util').validation.isValidAddress
 
 // ToDo: Mock Insight for these tests, currently fragile as they depend upon actual data
 
@@ -100,5 +101,18 @@ test('wallet store', () => {
         expect(res.error).toBe(false)
       })
     })
+  })
+})
+
+test('wallet new address', () => {
+  jest.setTimeout(60 * 1000)
+  expect.hasAssertions()
+
+  let wal = new Wallet('75c1209-dbcac5a6-e040977-64a52ae', 'PublicDevAccount')
+
+  return wal.load().then(() => {
+    let a = wal.newAddress('florincoin')
+
+    expect(isValidAddress(a)).toBe(true)
   })
 })
