@@ -90,6 +90,24 @@ Key.prototype.getNameFromAddress = function (addr) {
   return ''
 }
 
+Key.prototype.containsAddress = function (addr) {
+  return this.getNameFromAddress(addr) !== ''
+}
+
+Key.prototype.signMessage = function (addr, message) {
+  let name = this.getNameFromAddress(addr)
+  if (name !== '') {
+    return this.coins[name].signMessage(message)
+  }
+}
+
+Key.prototype.verifyMessage = function (addr, message, signature) {
+  let name = this.getNameFromAddress(addr)
+  if (name !== '') {
+    return this.coins[name].verifyMessage(message, signature)
+  }
+}
+
 Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, fee, txComment) {
   if (typeof fee === 'string') {
     txComment = fee

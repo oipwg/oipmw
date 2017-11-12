@@ -202,4 +202,22 @@ Wallet.prototype.listAddresses = function (coinName) {
   return addresses
 }
 
+Wallet.prototype.signMessgage = function (address, message) {
+  for (let k of this.keys) {
+    if (k.containsAddress(address)) {
+      return k.signMessage(address, message)
+    }
+  }
+  return ''
+}
+
+Wallet.prototype.verifyMessage = function (address, message, signature) {
+  for (let k of this.keys) {
+    if (k.containsAddress(address)) {
+      return k.verifyMessage(address, message, signature)
+    }
+  }
+  return false
+}
+
 module.exports = Wallet

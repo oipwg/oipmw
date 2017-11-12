@@ -1,4 +1,5 @@
 const bitcoin = require('bitcoinjs-lib')
+const bMessage = require('bitcoinjs-message')
 const coinNetworks = require('../coins/networks')
 
 function Coin (coinName, privKey, stxo) {
@@ -98,4 +99,12 @@ Coin.prototype.mergeTxo = function () {
   this.stxo = newStxo
 }
 
+Coin.prototype.signMessage = function (message) {
+  let signature = bMessage.sign(message, this.ecKey.d.toBuffer(32), this.ecKey.compressed, this.coinInfo.networks.messagePrefix)
+  return signature.toString('base64')
+}
+
+Coin.prototype.verifyMessage = function (message, signature) {
+  return bMessage.verify(message, this.address, signature, this.coinInfo.network.messagePrefix)
+}
 module.exports = Coin
