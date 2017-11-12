@@ -176,7 +176,7 @@ Wallet.prototype.toJSON = function () {
   }
 }
 
-Wallet.prototype.newAddress = function(coinName) {
+Wallet.prototype.newAddress = function (coinName) {
   if (!networks.isSupported(coinName)) {
     return ''
   }
@@ -188,6 +188,18 @@ Wallet.prototype.newAddress = function(coinName) {
   this.keys.push(k)
 
   return keyPair.getAddress()
+}
+
+Wallet.prototype.listAddresses = function (coinName) {
+  let addresses = []
+
+  for (let k of this.keys) {
+    if (k.hasCoin(coinName)) {
+      addresses.push(k.getAddress(coinName))
+    }
+  }
+
+  return addresses
 }
 
 module.exports = Wallet

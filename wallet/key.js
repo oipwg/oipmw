@@ -55,6 +55,10 @@ Key.prototype.addCoin = function (coinName) {
   }
 }
 
+Key.prototype.hasCoin = function (coinName) {
+  return this.coins[coinName] !== undefined
+}
+
 Key.prototype.getAddress = function (coinName) {
   return this.coins[coinName].address
 }
