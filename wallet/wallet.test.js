@@ -85,3 +85,20 @@ test('wallet refresh', () => {
     })
   })
 })
+
+test('wallet store', () => {
+  jest.setTimeout(60 * 1000)
+  expect.hasAssertions()
+
+  let wal = new Wallet('75c1209-dbcac5a6-e040977-64a52ae', 'PublicDevAccount')
+
+  return wal.load().then(() => {
+    return wal.refresh().then(() => {
+      return wal.store().then((res) => {
+        console.log(res)
+        expect(res).toBeDefined()
+        expect(res.error).toBe(false)
+      })
+    })
+  })
+})

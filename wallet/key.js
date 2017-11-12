@@ -11,6 +11,10 @@ function Key (privKey, coins) {
     return new Key(...arguments)
   }
 
+  if (privKey instanceof Object && coins === undefined) {
+    return this.fromDK(privKey)
+  }
+
   this.privKey = privKey
   this.coins = {}
 
@@ -26,6 +30,18 @@ function Key (privKey, coins) {
     this.addCoin(coins)
   } else {
     this.addCoin('florincoin')
+  }
+}
+
+Key.prototype.fromDK = function (dk) {
+  this.privKey = dk.privKey
+  this.coins = {}
+
+  for (let c in dk.coins) {
+    if (dk.coins.hasOwnProperty(c)) {
+      c = dk.coins[c]
+      this.coins[c.coinName] = new Coin(c.coinName, c.privKey, c.stxo)
+    }
   }
 }
 

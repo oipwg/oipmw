@@ -50,16 +50,37 @@ Wallet.prototype.load = callbackify(function () {
     return flovault.load(this.identifier).then((res) => {
       if (res.error === false) {
         let dec = decryptWallet(res.wallet, this.password, this.cryptoConfig)
+
+        if (!dec) {
+          return Promise.reject(new Error('Unable to decrypt wallet'))
+        }
+
         this.sharedKey = dec.shared_key
 
         if (Array.isArray(dec.keys)) {
-          this.keys = dec.keys
+          this.keys = hydrateKeys(dec.keys)
         } else {
           this.keys = addressesToKeys(dec.addresses)
         }
       }
     })
   })
+})
+
+Wallet.prototype.store = callbackify(function () {
+  let encryptedWallet = encryptWallet(this)
+
+  if (!encryptedWallet) {
+    return Promise.reject(new Error('Unable to encrypt wallet'))
+  }
+
+  let data = {
+    identifier: this.identifier,
+    shared_key: this.sharedKey,
+    wallet_data: encryptedWallet
+  }
+
+  return flovault.store(data)
 })
 
 Wallet.prototype.payTo = callbackify.variadic(function (fromAddress, toAddress, amount, fee, txComment) {
@@ -111,6 +132,15 @@ function decryptWallet (wallet, password, cryptoConfig) {
   }
 }
 
+function encryptWallet (wallet) {
+  try {
+    let bytes = CryptoJS.AES.encrypt(JSON.stringify(wallet), wallet.password, wallet.cryptoConfig)
+    return bytes.toString()
+  } catch (e) {
+    return false
+  }
+}
+
 function addressesToKeys (addresses) {
   let keys = []
   for (let addrStr in addresses) {
@@ -126,6 +156,23 @@ function addressesToKeys (addresses) {
     }
   }
   return keys
+}
+
+function hydrateKeys (dryKeys) {
+  let keys = []
+
+  for (let dk of dryKeys) {
+    keys.push(new Key(dk))
+  }
+
+  return keys
+}
+
+Wallet.prototype.toJSON = function () {
+  return {
+    shared_key: this.sharedKey,
+    keys: this.keys
+  }
 }
 
 module.exports = Wallet

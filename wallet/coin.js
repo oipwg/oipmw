@@ -1,7 +1,7 @@
 const bitcoin = require('bitcoinjs-lib')
 const coinNetworks = require('../coins/networks')
 
-function Coin (coinName, privKey) {
+function Coin (coinName, privKey, stxo) {
   if (!(this instanceof Coin)) {
     console.warn('Non constructor call made to Coin.constructor')
     return new Coin(...arguments)
@@ -17,6 +17,7 @@ function Coin (coinName, privKey) {
       compressed: this.ecKey.compressed,
       network: this.coinInfo.network
     })
+    this.privKey = this.ecKey.toWIF()
   }
 
   this.address = this.ecKey.getAddress().toString()
@@ -24,11 +25,14 @@ function Coin (coinName, privKey) {
   this.balanceSat = 0
   this.transactions = []
   this.utxo = []
-  this.stxo = []
+  this.stxo = (stxo || [])
 }
 
 Coin.prototype.toJSON = function () {
   return {
+    privKey: this.privKey,
+    address: this.address,
+    coinName: this.coinInfo.name,
     stxo: this.stxo
   }
 }

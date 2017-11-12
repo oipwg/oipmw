@@ -99,6 +99,40 @@ function readAccount (identifier, sharedKey) {
     })
 }
 
+function store (data) {
+  if (!isValidIdentifier(data.identifier)) {
+    let ret = {
+      error: 'malformed identifier',
+      message: 'malformed identifier'
+    }
+    return Promise.reject(ret)
+  }
+  if (!isValidSharedKey(data.shared_key)) {
+    let ret = {
+      error: 'malformed sharedKey',
+      message: 'malformed sharedKey'
+    }
+    return Promise.reject(ret)
+  }
+
+  return ax.post('update/', data)
+    .then(function (response) {
+      let rdata = response.data
+
+      if (rdata.error !== false) {
+        return Promise.reject(rdata)
+      }
+      return Promise.resolve(rdata)
+    })
+    .catch(function (error) {
+      let ret = {
+        error: error,
+        message: 'wallet/update request failed'
+      }
+      return Promise.reject(ret)
+    })
+}
+
 function isValidIdentifier (identifier) {
   // for example 75c1209-dbcac5a6-e040977-64a52ae
   return /^[0-9a-f]{7}-[0-9a-f]{8}-[0-9a-f]{7}-[0-9a-f]{7}$/.test(identifier)
@@ -113,5 +147,6 @@ module.exports = {
   checkLoad: callbackify(checkLoad),
   load: callbackify(load),
   readAccount: callbackify(readAccount),
+  store: callbackify(store),
   isValidIdentifier: callbackify(isValidIdentifier)
 }
