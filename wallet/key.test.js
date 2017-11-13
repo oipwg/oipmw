@@ -158,3 +158,36 @@ test('payto chain', () => {
     })
   })
 })
+
+test('payto bitcoin', () => {
+  let key = new Key('RAo87DBFGGcpLD9KvQrgkVtynPCniTNMW9i8pyVmcY8Hsyzyxy5B', 'bitcoin')
+
+  key.coins['bitcoin'].utxo = [{
+    'address': '18Q49vUAoe1dLqsgUdmj4g7VNKaT7kHDYt',
+    'txid': '4eed7d328bd6fc2a4aea779f016a441594048e5c95b8a5ed726dca01fa48c363',
+    'vout': 0,
+    'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',
+    'amount': 0.005,
+    'satoshis': 500000,
+    'height': 494117,
+    'confirmations': 115
+  },
+  {
+    'address': '18Q49vUAoe1dLqsgUdmj4g7VNKaT7kHDYt',
+    'txid': '12f5e5b512e8264cd8ef1b49ab150f4eebe4885a1de8d85dbf7ec7fe056f0f89',
+    'vout': 1,
+    'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',
+    'amount': 0.002,
+    'satoshis': 200000,
+    'height': 494115,
+    'confirmations': 117
+  }]
+
+  key.coins['bitcoin'].balanceSat = 700000
+
+  expect.hasAssertions()
+
+  return key.payTo('bitcoin', '186fmKh9Uy1uL1LYDT3MYxrapnEeUvNbUr', 0.006).then((res) => {
+    expect(res.txid).toBe('bbcc7a02d38f3047e8810d1a65a53b2e927cbbc32dfdec6a9571deab916edc2b')
+  })
+})
