@@ -109,6 +109,12 @@ Key.prototype.verifyMessage = function (addr, message, signature) {
 }
 
 Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, fee, txComment) {
+  let outputs = {}
+  outputs[address] = amount
+  return this.payToMulti(coinName, outputs, fee, txComment)
+})
+
+Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee, txComment) {
   if (typeof fee === 'string') {
     txComment = fee
     fee = undefined
@@ -126,15 +132,25 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     return Promise.reject(new Error('coin doesn\'t exist'))
   }
 
-  let amountSat = Math.floor(amount * coin.coinInfo.satPerCoin)
+  let amountSat = 0
+  for (let o in outputs) {
+    if (!outputs.hasOwnProperty(o)) {
+      continue
+    }
+
+    if (!isValidAddress(o, coin.coinInfo.network)) {
+      return Promise.reject(new Error('invalid address'))
+    }
+
+    // convert amounts to satoshi
+    let sat = Math.floor(outputs[o] * coin.coinInfo.satPerCoin)
+    amountSat += sat
+    outputs[o] = sat
+  }
   let feeSat = Math.floor((fee * coin.coinInfo.satPerCoin) || coin.coinInfo.minFee)
 
   if (coin.balanceSat < amountSat + feeSat) {
     return Promise.reject(new Error('not enough unspent balance on key'))
-  }
-
-  if (!isValidAddress(address, coin.coinInfo.network)) {
-    return Promise.reject(new Error('invalid address'))
   }
 
   let inputs = this.getBestUnspent(coin, amountSat + feeSat)
@@ -152,11 +168,17 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
     spentInputs.push(input.txid)
   }
 
-  // if paying self don't create 2 outputs
-  if (address !== coin.address) {
-    tx.addOutput(address, amountSat)
-  } else {
-    amountSat = 0
+  for (let o in outputs) {
+    if (!outputs.hasOwnProperty(o)) {
+      continue
+    }
+
+    // if paying self don't create extra outputs
+    if (o !== coin.address) {
+      tx.addOutput(o, outputs[o])
+    } else {
+      amountSat -= outputs[o]
+    }
   }
 
   let calcFee = coin.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)

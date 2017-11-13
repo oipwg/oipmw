@@ -214,3 +214,48 @@ test('payto litecoin', () => {
     expect(res.txid).toBe('13082f72abec2638b103aaf2f88344199344b2dac50c6fac2ffe9b1b8542b3a5')
   })
 })
+
+test('key payto multi testnet', () => {
+  expect.hasAssertions()
+
+  let key = new Key('RA4KK8pCiFuviH7M4e2k65mmLCH2bLr7kJ6wAHP2TPMdBPVnJoqW', 'bitcoin_testnet')
+
+  key.coins['bitcoin_testnet'].utxo = [
+    {
+      'address': 'mnjsTntSJP6E14jVcNsNFBje3tSo7y4pGi',
+      'txid': '32941968b44faaf224d58f6c21cb1cb58e36fdb168d68dfa2fbfb4254a6454cc',
+      'vout': 0,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.5,
+      'satoshis': 50000000,
+      'height': 1226907,
+      'confirmations': 3393
+    },
+    {
+      'address': 'mnjsTntSJP6E14jVcNsNFBje3tSo7y4pGi',
+      'txid': 'aac726419638daeb474d4de0cf41199ba7c1687493f865e0a52174a210df4178',
+      'vout': 0,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.5,
+      'satoshis': 50000000,
+      'height': 1225885,
+      'confirmations': 4415
+    },
+    {
+      'address': 'mnjsTntSJP6E14jVcNsNFBje3tSo7y4pGi',
+      'txid': 'd1699bd8dd12b2a5e96d922ee3845dd00e0e8a122ff9d5e94f16fd0d411c2e70',
+      'vout': 0,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.5,
+      'satoshis': 50000000,
+      'height': 1225853,
+      'confirmations': 4447
+    }
+  ]
+
+  key.coins['bitcoin_testnet'].balanceSat = 150000000
+
+  return key.payToMulti('bitcoin_testnet', {'n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi': 0.25, '2N8hwP1WmJrFF5QWABn38y63uYLhnJYJYTF': 0.25, 'mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB': 0.25}).then((res) => {
+    expect(res.txid).toBe('5b88a8e99667980d2b024713becf319c463b7d3f390a2335b979f41421f5b0b2')
+  })
+})
