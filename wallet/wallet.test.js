@@ -113,6 +113,6 @@ test('wallet new address', () => {
   return wal.load().then(() => {
     let a = wal.newAddress('florincoin')
 
-    expect(isValidAddress(a)).toBe(true)
+    expect(isValidAddress(a, 'florincoin')).toBe(true)
   })
 })
