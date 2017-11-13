@@ -14,7 +14,6 @@ function isValidPrivKey (priv, network) {
   throw new Error('Not implemented yet')
 }
 
-
 const tldBlacklist = ['mailinator.com']
 function isValidIdentifier (identifier) {
   // for example 75c1209-dbcac5a6-e040977-64a52ae
