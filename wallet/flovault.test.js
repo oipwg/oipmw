@@ -1,10 +1,11 @@
 const flovault = require('./flovault')
+const validation = require('../util').validation
 
 test('isValidIdentifier', () => {
-  expect(flovault.isValidIdentifier('75c1209-dbcac5a6-e040977-64a52ae')).toBe(true)
-  expect(flovault.isValidIdentifier('75R1209-dbcac5a6-e040977-64a52ae')).toBe(false)
-  expect(flovault.isValidIdentifier('75c1209-dbcac5a6-e040977-64a52ae-')).toBe(false)
-  expect(flovault.isValidIdentifier('75c1209')).toBe(false)
+  expect(validation.isValidIdentifier('75c1209-dbcac5a6-e040977-64a52ae')).toBe(true)
+  expect(validation.isValidIdentifier('75R1209-dbcac5a6-e040977-64a52ae')).toBe(false)
+  expect(validation.isValidIdentifier('75c1209-dbcac5a6-e040977-64a52ae-')).toBe(false)
+  expect(validation.isValidIdentifier('75c1209')).toBe(false)
 })
 
 // ToDo: Mock the http calls to force situations to test
