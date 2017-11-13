@@ -1,12 +1,7 @@
 const bitcoin = require('bitcoinjs-lib')
 const isemail = require('isemail')
-const networks = require('../coins/networks')
 
 function isValidAddress (address, network) {
-  if (typeof network === 'string') {
-    network = networks.getNetwork(network)
-  }
-
   try {
     let dec = bitcoin.address.fromBase58Check(address)
     return (dec.version === network.pubKeyHash)

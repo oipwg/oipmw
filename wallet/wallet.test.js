@@ -1,6 +1,7 @@
 const CryptoJS = require('crypto-js')
 const Wallet = require('./wallet')
 const isValidAddress = require('../util').validation.isValidAddress
+const networks = require('../coins/networks')
 
 // ToDo: Mock Insight for these tests, currently fragile as they depend upon actual data
 
@@ -113,6 +114,7 @@ test('wallet new address', () => {
   return wal.load().then(() => {
     let a = wal.newAddress('florincoin')
 
-    expect(isValidAddress(a, 'florincoin')).toBe(true)
+    let net = networks.getNetwork('florincoin')
+    expect(isValidAddress(a, net)).toBe(true)
   })
 })
