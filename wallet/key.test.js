@@ -191,3 +191,26 @@ test('payto bitcoin', () => {
     expect(res.txid).toBe('bbcc7a02d38f3047e8810d1a65a53b2e927cbbc32dfdec6a9571deab916edc2b')
   })
 })
+
+test('payto litecoin', () => {
+  let key = new Key('RAo87DBFGGcpLD9KvQrgkVtynPCniTNMW9i8pyVmcY8Hsyzyxy5B', 'litecoin')
+
+  key.coins['litecoin'].utxo = [{
+    'address': 'LSd1R8mztJFgbeZqemm2LhBFaXwjFP9Exk',
+    'txid': '07835392c91ded74c8a4d0e2f60f98175eaff58cafa995ad58caad3844cffe46',
+    'vout': 0,
+    'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',
+    'amount': 0.03292596,
+    'satoshis': 3292596,
+    'height': 1311667,
+    'confirmations': 962
+  }]
+
+  key.coins['litecoin'].balanceSat = 3292596
+
+  expect.hasAssertions()
+
+  return key.payTo('litecoin', 'LiFgCNF4XAZAdSdnqbRdsMEr4yVzx1thqZ', 0.03192596).then((res) => {
+    expect(res.txid).toBe('13082f72abec2638b103aaf2f88344199344b2dac50c6fac2ffe9b1b8542b3a5')
+  })
+})
