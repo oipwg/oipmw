@@ -165,7 +165,15 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   }
 
   let changeSat = inputs.subTotal - amountSat - calcFee
-  let changeVout = tx.addOutput(coin.address, changeSat)
+
+  if (changeSat < 0) {
+    return Promise.reject(new Error('attempted to spend more than available'))
+  }
+
+  let changeVout
+  if (changeSat > 0) {
+    changeVout = tx.addOutput(coin.address, changeSat)
+  }
 
   for (let i = 0; i < inputs.txo.length; i++) {
     tx.sign(i, coin.ecKey)
@@ -178,7 +186,7 @@ Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, 
   }
 
   return coin.coinInfo.explorer.pushTX(rawTx).then((res) => {
-    if (res.txid) {
+    if (res.txid && changeVout !== undefined) {
       coin.addUnconfirmed(res.txid, changeVout, changeSat / coin.coinInfo.satPerCoin, changeSat, spentInputs)
     }
     return Promise.resolve(res)
@@ -204,7 +212,7 @@ Key.prototype.getBestUnspent = function (coin, amountSat) {
     subTotal += utxo.satoshis
     txo.push(utxo)
 
-    if (subTotal > amountSat) {
+    if (subTotal >= amountSat) {
       return true
     }
   })
