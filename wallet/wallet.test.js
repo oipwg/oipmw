@@ -28,7 +28,7 @@ test('wallet load', () => {
   })
 })
 
-test('wallet refresh balance', () => {
+test.skip('wallet refresh balance', () => {
   jest.setTimeout(30 * 1000)
   expect.hasAssertions()
 
@@ -42,7 +42,7 @@ test('wallet refresh balance', () => {
   })
 })
 
-test('wallet refresh', () => {
+test.skip('wallet refresh', () => {
   jest.setTimeout(60 * 1000)
   expect.hasAssertions()
 
