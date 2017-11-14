@@ -4,6 +4,7 @@ const flovault = require('./flovault')
 const callbackify = require('callbackify')
 const Key = require('./key')
 const networks = require('../coins/networks')
+const isValidAddress = require('../util').validation.isValidAddress
 
 function Wallet (identifier, password, defaultCrypto) {
   if (!(this instanceof Wallet)) {
@@ -125,17 +126,30 @@ Wallet.prototype.getMainAddress = function (coinName) {
   return ''
 }
 
-Wallet.prototype.payTo = callbackify.variadic(function (fromAddress, toAddress, amount, fee, txComment) {
+Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount, fee, txComment) {
   let key, coinName
-  for (let k of this.keys) {
-    let name = k.getNameFromAddress(fromAddress)
-    if (name !== '') {
-      key = k
-      coinName = name
+
+  if (isValidAddress(from)) {
+    for (let k of this.keys) {
+      let name = k.getNameFromAddress(from)
+      if (name !== '') {
+        key = k
+        coinName = name
+      }
+    }
+  } else {
+    coinName = from
+    for (let k of this.keys) {
+      if (k.hasCoin(coinName)) {
+        if (k.getBalance(coinName) > ((amount + fee) || amount)) {
+          key = k
+        }
+      }
     }
   }
+
   if (key === undefined) {
-    return Promise.reject(new Error('No key found for address ' + fromAddress))
+    return Promise.reject(new Error('No key found for address ' + from))
   }
 
   return key.payTo(coinName, toAddress, amount, fee, txComment)
