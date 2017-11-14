@@ -84,6 +84,47 @@ Wallet.prototype.store = callbackify(function () {
   return flovault.store(data)
 })
 
+Wallet.prototype.getBalance = function (coinName) {
+  coinName = coinName || this.defaultCrypto
+
+  let balanceSat = 0
+  let spc = 1
+
+  for (let k of this.keys) {
+    if (k.hasCoin(coinName)) {
+      balanceSat += k.getBalanceSat(coinName)
+      spc = k.coins[coinName].coinInfo.satPerCoin
+    }
+  }
+
+  return balanceSat / spc
+}
+
+Wallet.prototype.getBalanceSat = function (coinName) {
+  coinName = coinName || this.defaultCrypto
+
+  let balanceSat = 0
+
+  for (let k of this.keys) {
+    if (k.hasCoin(coinName)) {
+      balanceSat += k.getBalanceSat(coinName)
+    }
+  }
+
+  return balanceSat
+}
+
+Wallet.prototype.getMainAddress = function (coinName) {
+  coinName = coinName || this.defaultCrypto
+
+  for (let k of this.keys) {
+    if (k.hasCoin(coinName)) {
+      return k.getAddress(coinName)
+    }
+  }
+  return ''
+}
+
 Wallet.prototype.payTo = callbackify.variadic(function (fromAddress, toAddress, amount, fee, txComment) {
   let key, coinName
   for (let k of this.keys) {
@@ -177,6 +218,8 @@ Wallet.prototype.toJSON = function () {
 }
 
 Wallet.prototype.newAddress = function (coinName) {
+  coinName = coinName || this.defaultCrypto
+
   if (!networks.isSupported(coinName)) {
     return ''
   }
@@ -191,6 +234,8 @@ Wallet.prototype.newAddress = function (coinName) {
 }
 
 Wallet.prototype.listAddresses = function (coinName) {
+  coinName = coinName || this.defaultCrypto
+
   let addresses = []
 
   for (let k of this.keys) {
