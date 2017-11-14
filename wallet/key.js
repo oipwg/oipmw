@@ -144,7 +144,7 @@ Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee
 
     // convert amounts to satoshi
     let sat = Math.floor(outputs[o] * coin.coinInfo.satPerCoin)
-    if (sat <= coin.coinInfo.dust) {
+    if (sat < coin.coinInfo.dust) {
       return Promise.reject(new Error('transaction contains dust output ' + sat + ' sat to ' + o))
     }
     amountSat += sat
