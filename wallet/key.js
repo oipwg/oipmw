@@ -144,6 +144,9 @@ Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee
 
     // convert amounts to satoshi
     let sat = Math.floor(outputs[o] * coin.coinInfo.satPerCoin)
+    if (sat <= coin.coinInfo.dust) {
+      return Promise.reject(new Error('transaction contains dust output ' + sat + ' sat to ' + o))
+    }
     amountSat += sat
     outputs[o] = sat
   }
@@ -186,10 +189,19 @@ Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee
     calcFee = Math.max(calcFee, feeSat)
   }
 
+  if (calcFee < coin.coinInfo.minFee) {
+    return Promise.reject(new Error('fee is too low for network ' + calcFee + ' sat'))
+  }
+
   let changeSat = inputs.subTotal - amountSat - calcFee
 
   if (changeSat < 0) {
     return Promise.reject(new Error('attempted to spend more than available'))
+  }
+
+  if (changeSat < coin.coinInfo.dust) {
+    // if change would be dust add it to the fee
+    changeSat = 0
   }
 
   let changeVout

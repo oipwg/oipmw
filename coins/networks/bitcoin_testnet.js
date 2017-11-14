@@ -6,6 +6,7 @@ exports.feePerKb = /* 0.00 */ 100000
 exports.feePerByte = this.feePerKb / 1024
 exports.maxFeePerByte = 100
 exports.minFee = this.feePerKb
+exports.dust = 546
 
 exports.txVersion = 1
 

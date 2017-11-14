@@ -288,22 +288,20 @@ test.skip('payto florincoin newly registered publisher', () => {
 
 // 02000000010b5babd1e5fc36863a6ba94b81d001b3489c3fe673c8bf9b3c16c3cca5395e5f000000006a473044022045d13ea3afcf74bf6828bd95075af47b4f5a776486e07e298811536a72e10fb802202c110bcd87df5964cf79931e58099be8424031234f2d3cbf3fc420f9b1e91f1d012102979e935915b36b6847f12196fb59eb87f97f44562afe99852560da3f368ea2b2ffffffff0200e1f505000000001976a9144f3a411d38966b259484338306c46924e616b53388acd2e94035000000001976a91406f838560356e6c5cd231e9108e4e3510d41dc7e88ac0000000009796f6c6f2073776167
 
-
-
 test('payto florincoin newly registered publisher after publish', () => {
   let key = new Key('R9sAKHYM5FxFbUggFZVs3SX2zzfnBpZsDo7ay79dK6uG2pr8eMkP', 'florincoin')
 
   key.coins['florincoin'].utxo = [
     {
-      "address": "FK1RmpknqVnMgbh58NyeopUrKcV5DvfDsc",
-      "txid": "10cd935c3ca821363b6fb553f23ad480bd55732c12b1ac719f6b0b498e4bbb03",
-      "vout": 0,
-      "ts": 1510620418,
-      "scriptPubKey": "76a914908d14707ae54c0e12916ae0713bffcbff94e81188ac",
-      "amount": 0.987029,
-      "satoshis": 98702900,
-      "confirmations": 6,
-      "confirmationsFromCache": true
+      'address': 'FK1RmpknqVnMgbh58NyeopUrKcV5DvfDsc',
+      'txid': '10cd935c3ca821363b6fb553f23ad480bd55732c12b1ac719f6b0b498e4bbb03',
+      'vout': 0,
+      'ts': 1510620418,
+      'scriptPubKey': '76a914908d14707ae54c0e12916ae0713bffcbff94e81188ac',
+      'amount': 0.987029,
+      'satoshis': 98702900,
+      'confirmations': 6,
+      'confirmationsFromCache': true
     }
   ]
 
@@ -316,5 +314,29 @@ test('payto florincoin newly registered publisher after publish', () => {
   })
 })
 
-
 // 020000000103bb4b8e490b6b9f71acb1122c7355bd80d43af253b56f3b3621a83c5c93cd10000000006a473044022072d9630c3d353333fe32b627089297ecbdf13e692046199fdf203eaf3fee8db702207922f53d69b9c92c141bf64050cb76a4f19f2cdf6e9ea0cfbe47369367d2e0ee012103d663803033c9abdda21a9ef9f2c8141eb245f145322cbee58aa6c8c1a7cef324ffffffff0280f0fa02000000001976a9144f3a411d38966b259484338306c46924e616b53388ac348f4e02000000001976a914908d14707ae54c0e12916ae0713bffcbff94e81188ac0000000017646f20796f75206c696b6520736361726563726f77733f
+
+test('payto florincoin dust output', () => {
+  let key = new Key('RAo87DBFGGcpLD9KvQrgkVtynPCniTNMW9i8pyVmcY8Hsyzyxy5B', 'florincoin')
+
+  key.coins['florincoin'].utxo = [{
+    'address': 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC',
+    'amount': 9.997,
+    'satoshis': 999700000,
+    'confirmations': 6,
+    'confirmationsFromCache': true,
+    'scriptPubKey': '76a9145125148dc7f01494071bfe3bf3afc7c612e0bd5388ac',
+    'ts': 1508836658,
+    'txid': '02c85b5cacecfeede339bb7874f250c7731d986c727283ee0c91cf5c96e52b11',
+    'vout': 1
+  }]
+
+  key.coins['florincoin'].balanceSat = 999700000
+
+  expect.hasAssertions()
+
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.0001, 'yolo swag').catch((err) => {
+    expect(err).toBeDefined()
+    expect(err.message.startsWith('transaction contains dust output')).toBe(true)
+  })
+})
