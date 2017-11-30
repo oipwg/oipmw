@@ -5,7 +5,8 @@ const networks = require('../coins/networks')
 
 // ToDo: Mock Insight for these tests, currently fragile as they depend upon actual data
 
-test('new wallet creation', () => {
+test.skip('new wallet creation', () => {
+  // Skipped to prevent flooding DB with new accounts
   expect.hasAssertions()
 
   return wallet.createNewWallet({
