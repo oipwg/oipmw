@@ -162,7 +162,12 @@ Wallet.prototype.getMainAddress = function (coinName) {
   return ''
 }
 
-Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount, fee, txComment) {
+Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount, options) {
+  let {
+    fee = 0,
+    txComment = ''
+  } = options
+
   let key, coinName
 
   if (isValidAddress(from)) {

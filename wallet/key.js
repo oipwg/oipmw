@@ -105,23 +105,22 @@ Key.prototype.verifyMessage = function (addr, message, signature) {
   }
 }
 
-Key.prototype.payTo = callbackify.variadic(function (coinName, address, amount, fee, txComment) {
-  let outputs = {}
-  outputs[address] = amount
-  return this.payToMulti(coinName, outputs, fee, txComment)
+Key.prototype.payTo = callbackify(function (coinName, address, amount, options) {
+  if (typeof options === 'undefined') {
+    options = {}
+  }
+
+  options.outputs = {}
+  options.outputs[address] = amount
+  return this.payToMulti(coinName, options)
 })
 
-Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee, txComment) {
-  if (typeof fee === 'string') {
-    txComment = fee
-    fee = undefined
-  }
-
-  if (coinName === 'florincoin') {
-    txComment = txComment || ''
-  } else {
+Key.prototype.payToMulti = callbackify(function (coinName, options) {
+  let {
+    fee = 0,
+    outputs = [],
     txComment = ''
-  }
+  } = options
 
   let coin = this.coins[coinName]
 
@@ -129,7 +128,7 @@ Key.prototype.payToMulti = callbackify.variadic(function (coinName, outputs, fee
     return Promise.reject(new Error('coin doesn\'t exist'))
   }
 
-  return coin.payTo(coinName, outputs, fee, txComment)
+  return coin.payTo({outputs, fee, txComment})
 })
 
 Key.prototype.refreshBalance = callbackify(function () {

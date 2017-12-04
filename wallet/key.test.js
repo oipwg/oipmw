@@ -26,7 +26,7 @@ test('payto florincoin', () => {
 
   expect.hasAssertions()
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, 'yolo swag').then((res) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, {txComment: 'yolo swag'}).then((res) => {
     expect(res.txid).toBe('cdf9581d413286dc1c6ccb7d2b0ca105879c29932364668d579ed2621dffe60a')
   })
 })
@@ -63,7 +63,7 @@ test('payto self  florincoin', () => {
 
   expect.hasAssertions()
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, 'i r kool').then((res) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, {txComment: 'i r kool'}).then((res) => {
     expect(res.txid).toBe('e12803c36c34046b15ea6c8a1494b23a3626b6e2ad6dfdcd84ac72ab947e97dc')
   })
 })
@@ -134,22 +134,22 @@ test('payto chain', () => {
 
   key.coins['florincoin'].balanceSat = 1095900000
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, 0.01, 'hello world').then((res) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
     expect(res.txid).toBe('9a6bb4ba71193747ee410dca43fb9129b9ec77371729c3846bf2ac69e4c44d0a')
 
-    return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, 0.01, 'hello world').then((res) => {
+    return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
       expect(res.txid).toBe('2f23170f3d1d5b1df681a3a27da28a782b784bc8ac132cf4e9b4e3b52930dbec')
 
-      return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, 0.01, 'hello world').then((res) => {
+      return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
         expect(res.txid).toBe('6150afed30db86910878aa947651df3c8a8076ba3068f002e89009e7b01c9468')
 
-        return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, 0.003, 'hello world').then((res) => {
+        return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.003, txComment: 'hello world'}).then((res) => {
           expect(res.txid).toBe('3a20c03798be77b95c8af8952dfb2feeb22bdf53828e8993e6c4b8d189069c25')
 
-          return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 1, 'hello world').then((res) => {
+          return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 1, {txComment: 'hello world'}).then((res) => {
             expect(res.txid).toBe('8362e54bb19e917fa9678d0f36bd1e19f47573fd2a1e8990629ffb818e0bf97b')
 
-            return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 2, 'hello world').then((res) => {
+            return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 2, {txComment: 'hello world'}).then((res) => {
               expect(res.txid).toBe('58b90b1cb006c45f3d7d67fa2eeb9e6ee53b6dce75b382e3c67f3944ecb83b18')
             })
           })
@@ -255,7 +255,7 @@ test('key payto multi testnet', () => {
 
   key.coins['bitcoin_testnet'].balanceSat = 150000000
 
-  return key.payToMulti('bitcoin_testnet', {'n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi': 0.25, '2N8hwP1WmJrFF5QWABn38y63uYLhnJYJYTF': 0.25, 'mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB': 0.25}).then((res) => {
+  return key.payToMulti('bitcoin_testnet', {outputs: {'n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi': 0.25, '2N8hwP1WmJrFF5QWABn38y63uYLhnJYJYTF': 0.25, 'mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB': 0.25}}).then((res) => {
     expect(res.txid).toBe('5b88a8e99667980d2b024713becf319c463b7d3f390a2335b979f41421f5b0b2')
   })
 })
@@ -281,7 +281,7 @@ test.skip('payto florincoin newly registered publisher', () => {
 
   expect.hasAssertions()
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.5, 0.1, 'yolo swag').then((res) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.5, {fee: 0.1, txComment: 'yolo swag'}).then((res) => {
     expect(res.txid).toBe('d202718a3c574d5b28f284c6ad81e11819753570377684052447d4b1fecf4331')
   })
 })
@@ -309,7 +309,7 @@ test('payto florincoin newly registered publisher after publish', () => {
 
   expect.hasAssertions()
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.5, 0.1, 'do you like scarecrows?').then((res) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.5, {fee: 0.1, txComment: 'do you like scarecrows?'}).then((res) => {
     expect(res.txid).toBe('eaf5687248115795ce68618fb005311819cb54f083a5829b4788e2b6c2848044')
   })
 })
@@ -335,7 +335,7 @@ test('payto florincoin dust output', () => {
 
   expect.hasAssertions()
 
-  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.0001, 'yolo swag').catch((err) => {
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 0.0001, {txComment: 'yolo swag'}).catch((err) => {
     expect(err).toBeDefined()
     expect(err.message.startsWith('transaction contains dust output')).toBe(true)
   })

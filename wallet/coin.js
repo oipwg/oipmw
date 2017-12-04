@@ -111,7 +111,21 @@ Coin.prototype.verifyMessage = function (message, signature) {
   return bMessage.verify(message, this.address, signature, this.coinInfo.network.messagePrefix)
 }
 
-Coin.prototype.payTo = callbackify.variadic(function (coinName, outputs, fee, txComment) {
+Coin.prototype.payTo = callbackify.variadic(function (options) {
+  let {
+    fee = 0,
+    outputs = [],
+    txComment = ''
+  } = options
+
+  if (this.coinInfo.name !== 'florincoin') {
+    txComment = ''
+  }
+
+  // if (outputs.length === 0) {
+  //   return Promise.reject(new Error('No outputs on transaction, entire balance would be sent to miners'))
+  // }
+
   let amountSat = 0
   for (let o in outputs) {
     if (!outputs.hasOwnProperty(o)) {
