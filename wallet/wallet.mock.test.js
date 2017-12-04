@@ -10,7 +10,7 @@ test.skip('wallet payto', () => {
 
   return wal.load().then(() => {
     return wal.refresh().then(() => {
-      return wal.payTo('FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, 0.01, 'hello world')
+      return wal.payTo('FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'})
         .then((res) => {
           expect(res.txid).toBe('a6aeef470d822cf58f40a20ccfa389084434f535f2c79684158d2d60a6018307')
         })
