@@ -189,7 +189,7 @@ Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount,
   }
 
   if (key === undefined) {
-    return Promise.reject(new Error('No key found for address ' + from))
+    return Promise.reject(new Error('No key found for ' + from))
   }
 
   return key.payTo(coinName, toAddress, amount, options)
