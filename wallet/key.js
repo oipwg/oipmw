@@ -116,19 +116,30 @@ Key.prototype.payTo = callbackify(function (coinName, address, amount, options) 
 })
 
 Key.prototype.payToMulti = callbackify(function (coinName, options) {
-  let {
-    fee = 0,
-    outputs = [],
-    txComment = ''
-  } = options
-
   let coin = this.coins[coinName]
 
   if (!coin) {
     return Promise.reject(new Error('coin doesn\'t exist'))
   }
 
-  return coin.payTo({outputs, fee, txComment})
+  return coin.payTo(options)
+})
+
+Key.prototype.sendQueue = callbackify(function (coinName = '') {
+  if (coinName === '') {
+    let p = []
+    for (let c in this.coins) {
+      if (this.coins.hasOwnProperty(c)) {
+        p.push(c.pq.sendAll())
+      }
+    }
+    return Promise.allSettled(p)
+  } else {
+    if (this.hasCoin(coinName)) {
+      return this.coins[coinName].pq.sendAll()
+    }
+  }
+  return Promise.reject(new Error('no queue to flush on coin ' + coinName))
 })
 
 Key.prototype.refreshBalance = callbackify(function () {

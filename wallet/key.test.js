@@ -340,3 +340,70 @@ test('payto florincoin dust output', () => {
     expect(err.message.startsWith('transaction contains dust output')).toBe(true)
   })
 })
+
+test('payto chain q', () => {
+  expect.hasAssertions()
+
+  let key = new Key('RA4KK8pCiFuviH7M4e2k65mmLCH2bLr7kJ6wAHP2TPMdBPVnJoqW', 'florincoin')
+
+  key.coins['florincoin'].utxo = [
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': 'd202718a3c574d5b28f284c6ad81e11819753570377684052447d4b1fecf4331',
+      'vout': 0,
+      'ts': 1511237053,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.0001,
+      'satoshis': 10000,
+      'confirmations': 6,
+      'confirmationsFromCache': true
+    },
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': 'eaf5687248115795ce68618fb005311819cb54f083a5829b4788e2b6c2848044',
+      'vout': 0,
+      'ts': 1510620852,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.5,
+      'satoshis': 50000000,
+      'confirmations': 6,
+      'confirmationsFromCache': true
+    },
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': 'c0dff424a023437f3862bb51a0bcf912afc8e8a8909699e4857c0d6ebbccfc8e',
+      'vout': 0,
+      'ts': 1512680220,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 7.912,
+      'satoshis': 791200000,
+      'confirmations': 3,
+      'confirmationsFromCache': false
+    }
+  ]
+
+  key.coins['florincoin'].balanceSat = 841410000
+
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 5, {q: true, fee: 0.001, txComment: 'hello world'}).then((res) => {
+    return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 4, {q: true, fee: 0.002, txComment: 'hello world'}).then((res) => {
+      return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 3, {q: true, fee: 0.003, txComment: 'hello world'}).then((res) => {
+        return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 2, {q: true, fee: 0.004, txComment: 'hello world'}).then((res) => {
+          return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 1, {q: true, txComment: 'hello world'}).then((res) => {
+            return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 0.5, {q: true, txComment: 'hello world'}).then((res) => {
+              return key.sendQueue('florincoin').then((res) => {
+                expect(res).toEqual([
+                  { txid: 'e3eae4cf806a8f3306f5cfe7139cd44da816794dab31cedb77706f79e27e817d' },
+                  { txid: 'f839ae2b73c456299f03b2d7f7e0471be7f2077b4d264fa6705700caa7198a71' },
+                  { txid: '8a89b59092ecbcb099c2bdab036583d8956f7984086823b76edd4cce578a8062' },
+                  { txid: 'a5db061f81eb9079f0997b3e1180c7a1282e873fb2626f552fd34baf9cbafb39' },
+                  { txid: '47935ec641596823f746830d75ed8c596a85aa1ba01a0c86c899fb4215e78aa8' },
+                  { txid: '618b96acd5762f7d2f4b74777cdd8e12104a291e3524e43373a0caea6cbb14c8' }
+                ])
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+})

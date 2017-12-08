@@ -1,9 +1,12 @@
 const bitcoin = require('bitcoinjs-lib')
+const bcrypto = bitcoin.crypto
 const bMessage = require('bitcoinjs-message')
 const callbackify = require('callbackify')
 const coinNetworks = require('../coins/networks')
 const util = require('../util')
 const isValidAddress = util.validation.isValidAddress
+const PaymentQueue = require('./paymentQueue')
+const TransactionBuilder = bitcoin.TransactionBuilder
 
 function Coin (coinName, privKey, stxo) {
   if (!(this instanceof Coin)) {
@@ -30,6 +33,7 @@ function Coin (coinName, privKey, stxo) {
   this.transactions = []
   this.utxo = []
   this.stxo = (stxo || [])
+  this.pq = new PaymentQueue(this)
 }
 
 Coin.prototype.toJSON = function () {
@@ -113,13 +117,13 @@ Coin.prototype.verifyMessage = function (message, signature) {
 
 Coin.prototype.payTo = callbackify.variadic(function (options) {
   let {
+    q = false,
     fee = 0,
-    outputs = [],
-    txComment = ''
+    outputs = {}
   } = options
 
   if (this.coinInfo.name !== 'florincoin') {
-    txComment = ''
+    options.txComment = ''
   }
 
   // if (outputs.length === 0) {
@@ -141,8 +145,14 @@ Coin.prototype.payTo = callbackify.variadic(function (options) {
     if (sat < this.coinInfo.dust) {
       return Promise.reject(new Error('transaction contains dust output ' + sat + ' sat to ' + o))
     }
-    amountSat += sat
-    outputs[o] = sat
+
+    // if paying self don't create extra outputs
+    if (o === this.address) {
+      delete outputs[o]
+    } else {
+      amountSat += sat
+      outputs[o] = sat
+    }
   }
   let feeSat = Math.floor((fee * this.coinInfo.satPerCoin) || this.coinInfo.minFee)
 
@@ -150,10 +160,30 @@ Coin.prototype.payTo = callbackify.variadic(function (options) {
     return Promise.reject(new Error('not enough unspent balance on key'))
   }
 
+  options.amountSat = amountSat
+  options.feeSat = feeSat
+  options.outputSat = outputs
+
+  if (q === false) {
+    return this._directSendPayment(options)
+  } else {
+    return this.pq.add(options)
+  }
+})
+
+Coin.prototype._buildTX = function (options) {
+  let {
+    fee = 0,
+    outputSat = {},
+    txComment = '',
+    amountSat,
+    feeSat
+  } = options
+
   let inputs = this.getBestUnspent(amountSat + feeSat)
 
   if (inputs.err !== null) {
-    return Promise.reject(inputs)
+    return new Error(inputs.err)
   }
 
   let tx = new bitcoin.TransactionBuilder(this.coinInfo.network, this.coinInfo.maxFeePerByte)
@@ -165,17 +195,11 @@ Coin.prototype.payTo = callbackify.variadic(function (options) {
     spentInputs.push(input.txid)
   }
 
-  for (let o in outputs) {
-    if (!outputs.hasOwnProperty(o)) {
+  for (let o in outputSat) {
+    if (!outputSat.hasOwnProperty(o)) {
       continue
     }
-
-    // if paying self don't create extra outputs
-    if (o !== this.address) {
-      tx.addOutput(o, outputs[o])
-    } else {
-      amountSat -= outputs[o]
-    }
+    tx.addOutput(o, outputSat[o])
   }
 
   let calcFee = this.coinInfo.estimateFee(tx.buildIncomplete(), txComment.length)
@@ -184,13 +208,13 @@ Coin.prototype.payTo = callbackify.variadic(function (options) {
   }
 
   if (calcFee < this.coinInfo.minFee) {
-    return Promise.reject(new Error('fee is too low for network ' + calcFee + ' sat'))
+    return new Error('fee is too low for network ' + calcFee + ' sat')
   }
 
   let changeSat = inputs.subTotal - amountSat - calcFee
 
   if (changeSat < 0) {
-    return Promise.reject(new Error('attempted to spend more than available'))
+    return new Error('attempted to spend more than available')
   }
 
   if (changeSat < this.coinInfo.dust) {
@@ -207,19 +231,44 @@ Coin.prototype.payTo = callbackify.variadic(function (options) {
     tx.sign(i, this.ecKey)
   }
 
+  if (changeVout !== undefined) {
+    this.addUnconfirmed(getTxId(tx, txComment), changeVout, changeSat / this.coinInfo.satPerCoin, changeSat, spentInputs)
+  }
+
+  return {tx, changeVout, changeSat, spentInputs, txComment}
+}
+
+function getTxId (tx, txComment) {
+  let txh = tx.build().toHex()
+  if (txComment !== '') {
+    txh += bitcoin.bufferutils.varIntBuffer(txComment.length).toString('hex') + Buffer.from(txComment).toString('hex')
+  }
+  return bcrypto.hash256(Buffer.from(txh, 'hex')).reverse().toString('hex')
+}
+
+Coin.prototype._directSendPayment = function (options) {
+  let tx, txComment
+
+  if (options.tx instanceof TransactionBuilder) {
+    tx = options.tx
+    txComment = options.txComment
+  } else {
+    let built = this._buildTX(options)
+    if (built instanceof Error) {
+      return Promise.reject(built)
+    }
+    tx = built.tx
+    txComment = built.txComment
+  }
+
   let rawTx = tx.build().toHex()
 
   if (txComment !== '') {
     rawTx += bitcoin.bufferutils.varIntBuffer(txComment.length).toString('hex') + Buffer.from(txComment).toString('hex')
   }
 
-  return this.coinInfo.explorer.pushTX(rawTx).then((res) => {
-    if (res.txid && changeVout !== undefined) {
-      this.addUnconfirmed(res.txid, changeVout, changeSat / this.coinInfo.satPerCoin, changeSat, spentInputs)
-    }
-    return Promise.resolve(res)
-  })
-})
+  return this.coinInfo.explorer.pushTX(rawTx)
+}
 
 Coin.prototype.getBestUnspent = function (amountSat) {
   let subTotal = 0
