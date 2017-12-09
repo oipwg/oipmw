@@ -46,6 +46,7 @@ Coin.prototype.toJSON = function () {
 }
 
 Coin.prototype.addUnconfirmed = function (txid, vout, amount, satoshis, inputs) {
+  this.balanceSat += satoshis
   this.stxo.push(
     {
       'address': this.address,
