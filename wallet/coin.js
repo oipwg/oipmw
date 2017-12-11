@@ -233,15 +233,15 @@ Coin.prototype._buildTX = function (options) {
   }
 
   if (changeVout !== undefined) {
-    this.addUnconfirmed(getTxId(tx, txComment), changeVout, changeSat / this.coinInfo.satPerCoin, changeSat, spentInputs)
+    this.addUnconfirmed(this.getTxId(tx, txComment), changeVout, changeSat / this.coinInfo.satPerCoin, changeSat, spentInputs)
   }
 
   return {tx, changeVout, changeSat, spentInputs, txComment}
 }
 
-function getTxId (tx, txComment) {
+Coin.prototype.getTxId = function (tx, txComment) {
   let txh = tx.build().toHex()
-  if (txComment !== '') {
+  if (this.coinInfo.name === 'florincoin') {
     txh += bitcoin.bufferutils.varIntBuffer(txComment.length).toString('hex') + Buffer.from(txComment).toString('hex')
   }
   return bcrypto.hash256(Buffer.from(txh, 'hex')).reverse().toString('hex')
@@ -264,7 +264,7 @@ Coin.prototype._directSendPayment = function (options) {
 
   let rawTx = tx.build().toHex()
 
-  if (txComment !== '') {
+  if (this.coinInfo.name === 'florincoin') {
     rawTx += bitcoin.bufferutils.varIntBuffer(txComment.length).toString('hex') + Buffer.from(txComment).toString('hex')
   }
 

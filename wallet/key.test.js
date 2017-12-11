@@ -407,3 +407,66 @@ test('payto chain q', () => {
     })
   })
 })
+
+test('payto chain condense', () => {
+  expect.hasAssertions()
+
+  let key = new Key('RA4KK8pCiFuviH7M4e2k65mmLCH2bLr7kJ6wAHP2TPMdBPVnJoqW', 'florincoin')
+
+  key.coins['florincoin'].utxo = [
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': 'd202718a3c574d5b28f284c6ad81e11819753570377684052447d4b1fecf4331',
+      'vout': 0,
+      'ts': 1511237053,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.0001,
+      'satoshis': 10000,
+      'confirmations': 6,
+      'confirmationsFromCache': true
+    },
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': 'eaf5687248115795ce68618fb005311819cb54f083a5829b4788e2b6c2848044',
+      'vout': 0,
+      'ts': 1510620852,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 0.5,
+      'satoshis': 50000000,
+      'confirmations': 6,
+      'confirmationsFromCache': true
+    },
+    {
+      'address': 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s',
+      'txid': '618b96acd5762f7d2f4b74777cdd8e12104a291e3524e43373a0caea6cbb14c8',
+      'vout': 1,
+      'ts': 1512688138,
+      'scriptPubKey': '76a9144f3a411d38966b259484338306c46924e616b53388ac',
+      'amount': 6.4,
+      'satoshis': 640000000,
+      'confirmations': 6,
+      'confirmationsFromCache': true
+    }
+  ]
+
+  key.coins['florincoin'].balanceSat = 841410000
+
+  return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 5, {q: true, fee: 0.001}).then((res) => {
+    return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 4, {q: true, fee: 0.002}).then((res) => {
+      return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 3, {q: true, fee: 0.003}).then((res) => {
+        return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 2, {q: true, fee: 0.004, txComment: 'hello world'}).then((res) => {
+          return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 1, {q: true}).then((res) => {
+            return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 0.5, {q: true}).then((res) => {
+              return key.sendQueue('florincoin').then((res) => {
+                expect(res).toEqual([
+                  { txid: '5a421a1f5260676c50397c571b2ff4f828183c0399a852bc02dd88fc455f96d9' },
+                  { txid: 'ffd7394a2f0d9839c7ee8463d91a619b79ac2b68857be23fec0ecc8ba076daec' }
+                ])
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+})

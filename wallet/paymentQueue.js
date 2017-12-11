@@ -62,7 +62,7 @@ PaymentQueue.prototype._buildCacheTX = function () {
       if (noCom.outputSat[o]) {
         noCom.outputSat[o] += qi.amountSat
       } else {
-        noCom.amountSat[o] = qi.amountSat
+        noCom.outputSat[o] = qi.amountSat
       }
     }
   }
@@ -78,7 +78,7 @@ PaymentQueue.prototype._buildCacheTX = function () {
     this.cachedTX.push(this.coin._buildTX(btOptions))
   }
 
-  if (noCom.amountSat > 0 && noCom.feeSat > 0) { this.cachedTX.push(this.coin._buildTX(noCom)) }
+  if (noCom.amountSat > 0 || noCom.feeSat > 0) { this.cachedTX.push(this.coin._buildTX(noCom)) }
 
   this.stale = false
 }
