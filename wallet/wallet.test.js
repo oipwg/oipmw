@@ -44,6 +44,17 @@ test('wallet load', () => {
   })
 })
 
+test('wallet get private key', () => {
+  expect.hasAssertions()
+
+  let wal = new wallet.Wallet('75c1209-dbcac5a6-e040977-64a52ae', 'PublicDevAccount')
+
+  return wal.load().then(() => {
+    expect(wal.getPrivateKey('FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC')).toBe('RAo87DBFGGcpLD9KvQrgkVtynPCniTNMW9i8pyVmcY8Hsyzyxy5B')
+  }
+  )
+})
+
 test.skip('wallet refresh balance', () => {
   jest.setTimeout(30 * 1000)
   expect.hasAssertions()

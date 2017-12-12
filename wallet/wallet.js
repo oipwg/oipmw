@@ -162,6 +162,18 @@ Wallet.prototype.getMainAddress = function (coinName) {
   return ''
 }
 
+Wallet.prototype.getPrivateKey = function (address) {
+  if (isValidAddress(address)) {
+    for (let k of this.keys) {
+      let name = k.getNameFromAddress(address)
+      if (name !== '') {
+        return k.coins[name].privKey
+      }
+    }
+  }
+  return ''
+}
+
 Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount, options) {
   let {
     fee = 0
