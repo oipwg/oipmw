@@ -105,6 +105,7 @@ Coin.prototype.mergeTxo = function () {
 
   this.utxo = newUtxo
   this.stxo = newStxo
+  this.balanceSat = newUtxo.reduce((sum, utxo) => sum + utxo.satoshis, 0)
 }
 
 Coin.prototype.signMessage = function (message) {
