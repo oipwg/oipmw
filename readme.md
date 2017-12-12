@@ -1,2 +1,2 @@
-[![Coverage Status](https://coveralls.io/repos/github/bitspill/aep/badge.png?branch=master)](https://coveralls.io/github/bitspill/aep?branch=master)
-[![Build Status](https://travis-ci.org/bitspill/aep.png?branch=master)](https://travis-ci.org/bitspill/aep)
+[![Coverage Status](https://coveralls.io/repos/github/oipwg/oipmw/badge.png?branch=master)](https://coveralls.io/github/oipwg/oipmw?branch=master)
+[![Build Status](https://travis-ci.org/oipwg/oipmw.png?branch=master)](https://travis-ci.org/oipwg/oipmw)
