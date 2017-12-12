@@ -4,7 +4,11 @@ const isemail = require('isemail')
 function isValidAddress (address, network) {
   try {
     let dec = bitcoin.address.fromBase58Check(address)
-    return dec.version === network.pubKeyHash || dec.version === network.scriptHash
+    if (network) {
+      return dec.version === network.pubKeyHash || dec.version === network.scriptHash
+    } else {
+      return true
+    }
   } catch (e) {
     return false
   }
