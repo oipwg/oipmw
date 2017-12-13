@@ -94,7 +94,7 @@ Coin.prototype.mergeTxo = function () {
   for (let st of newStxo) {
     let confirmed = false
     for (let ut of newUtxo) {
-      if (st.txid === ut.txid) {
+      if (st.txid === ut.txid && st.vout === ut.vout) {
         confirmed = true
       }
     }
