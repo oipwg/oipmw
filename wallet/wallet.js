@@ -341,7 +341,7 @@ Wallet.prototype.addUnconfirmedFromFaucet = function (txinfo) {
             let txid = txinfo.txid
             let vn = vout.n
             let amount = vout.value
-            let satoshi = amount * k.coins['florincoin'].coinInfo.satPerCoin
+            let satoshi = Math.floor(amount * k.coins['florincoin'].coinInfo.satPerCoin)
             let inputs = []
             k.coins['florincoin'].addUnconfirmed(txid, vn, amount, satoshi, inputs)
           }
