@@ -65,6 +65,7 @@ Coin.prototype.addUnconfirmed = function (txid, vout, amount, satoshis, inputs) 
 Coin.prototype.mergeTxo = function () {
   let newUtxo = []
   let newStxo = []
+  let unconfStxo = []
 
   for (let ut of this.utxo) {
     let spent = false
@@ -91,6 +92,18 @@ Coin.prototype.mergeTxo = function () {
   }
 
   for (let st of newStxo) {
+    let confirmed = false
+    for (let ut of newUtxo) {
+      if (st.txid === ut.txid) {
+        confirmed = true
+      }
+    }
+    if (!confirmed) {
+      unconfStxo.push(st)
+    }
+  }
+
+  for (let st of unconfStxo) {
     newUtxo.push({
       'address': st.address,
       'txid': st.txid,
@@ -104,7 +117,7 @@ Coin.prototype.mergeTxo = function () {
   }
 
   this.utxo = newUtxo
-  this.stxo = newStxo
+  this.stxo = unconfStxo
   this.balanceSat = newUtxo.reduce((sum, utxo) => sum + utxo.satoshis, 0)
 }
 
