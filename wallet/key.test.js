@@ -114,7 +114,7 @@ test('key payto testnet', () => {
 })
 
 test('payto chain', () => {
-  expect.assertions(6)
+  expect.assertions(12)
 
   let key = new Key('RA4KK8pCiFuviH7M4e2k65mmLCH2bLr7kJ6wAHP2TPMdBPVnJoqW', 'florincoin')
 
@@ -133,24 +133,37 @@ test('payto chain', () => {
   ]
 
   key.coins['florincoin'].balanceSat = 1095900000
+  let newBal = key.coins['florincoin'].balanceSat
 
   return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
     expect(res.txid).toBe('9a6bb4ba71193747ee410dca43fb9129b9ec77371729c3846bf2ac69e4c44d0a')
+    newBal -= 1000000
+    expect(key.coins['florincoin'].balanceSat).toBe(newBal)
 
     return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
       expect(res.txid).toBe('2f23170f3d1d5b1df681a3a27da28a782b784bc8ac132cf4e9b4e3b52930dbec')
+      newBal -= 1000000
+      expect(key.coins['florincoin'].balanceSat).toBe(newBal)
 
       return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.01, txComment: 'hello world'}).then((res) => {
         expect(res.txid).toBe('6150afed30db86910878aa947651df3c8a8076ba3068f002e89009e7b01c9468')
+        newBal -= 1000000
+        expect(key.coins['florincoin'].balanceSat).toBe(newBal)
 
         return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 10, {fee: 0.003, txComment: 'hello world'}).then((res) => {
           expect(res.txid).toBe('3a20c03798be77b95c8af8952dfb2feeb22bdf53828e8993e6c4b8d189069c25')
+          newBal -= 300000
+          expect(key.coins['florincoin'].balanceSat).toBe(newBal)
 
           return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 1, {txComment: 'hello world'}).then((res) => {
             expect(res.txid).toBe('8362e54bb19e917fa9678d0f36bd1e19f47573fd2a1e8990629ffb818e0bf97b')
+            newBal -= 100100000
+            expect(key.coins['florincoin'].balanceSat).toBe(newBal)
 
             return key.payTo('florincoin', 'FDEAciuFexEHy1kiLKRt34e2PybTyhdGZC', 2, {txComment: 'hello world'}).then((res) => {
               expect(res.txid).toBe('58b90b1cb006c45f3d7d67fa2eeb9e6ee53b6dce75b382e3c67f3944ecb83b18')
+              newBal -= 200100000
+              expect(key.coins['florincoin'].balanceSat).toBe(newBal)
             })
           })
         })
