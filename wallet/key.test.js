@@ -65,7 +65,7 @@ test('payto self  florincoin', () => {
 
   return key.payTo('florincoin', 'FD42dYEYLfsdr88ukVZ9Pf3rDYs75McM7s', 1, {txComment: 'i r kool'}).then((res) => {
     expect(res.txid).toBe('e12803c36c34046b15ea6c8a1494b23a3626b6e2ad6dfdcd84ac72ab947e97dc')
-    expect(key.coins['florincoin'].balanceSat).toBe(1100000000-100000)
+    expect(key.coins['florincoin'].balanceSat).toBe(1100000000 - 100000)
   })
 })
 
