@@ -332,18 +332,20 @@ Wallet.prototype.verifyMessage = function (address, message, signature) {
   return false
 }
 
-Wallet.prototype.addUnconfirmedFromFaucet = function (txinfo) {
+Wallet.prototype.addUnconfirmedRawTransaction = function (txinfo, coinName) {
+  coinName = coinName || 'florincoin'
+
   for (let vout of txinfo.vout) {
     for (let address of vout.scriptPubKey.addresses) {
       for (let k of this.keys) {
-        if (k.hasCoin('florincoin')) {
-          if (address === k.getAddress('florincoin')) {
+        if (k.hasCoin(coinName)) {
+          if (address === k.getAddress(coinName)) {
             let txid = txinfo.txid
             let vn = vout.n
             let amount = vout.value
-            let satoshi = Math.floor(amount * k.coins['florincoin'].coinInfo.satPerCoin)
+            let satoshi = Math.floor(amount * k.coins[coinName].coinInfo.satPerCoin)
             let inputs = []
-            k.coins['florincoin'].addUnconfirmed(txid, vn, amount, satoshi, inputs)
+            k.coins[coinName].addUnconfirmed(txid, vn, amount, satoshi, inputs)
           }
         }
       }
