@@ -357,4 +357,12 @@ Coin.prototype.refreshTransactions = function () {
   })
 }
 
+Coin.prototype.getTransactionsHistory = function() {
+  return this.transactionsHistory
+}
+
+Coin.prototype.getTransactionsPage = function (page) {
+  return this.coinInfo.explorer.getTransactions(this.address, page)
+}
+
 module.exports = Coin
