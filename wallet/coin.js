@@ -358,7 +358,7 @@ Coin.prototype.refreshTransactions = function () {
   })
 }
 
-Coin.prototype.getTransactionsHistory = function() {
+Coin.prototype.getTransactionsHistory = function () {
   return this.transactionsHistory
 }
 
