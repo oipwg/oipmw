@@ -324,7 +324,7 @@ Coin.prototype.refreshTransactions = function () {
   this.transactionsHistory.queued = []
   this.transactionsHistory.unconfirmed = []
 
-  this.coinInfo.explorer.getTransactions(this.address, 0).then((res) => {
+  return this.coinInfo.explorer.getTransactions(this.address, 0).then((res) => {
     this.transactionsHistory.confirmed = res
 
     for (let st of this.stxo) {
@@ -355,8 +355,6 @@ Coin.prototype.refreshTransactions = function () {
       this.transactionsHistory.queued.push(thq)
     }
   })
-
-  return Promise.resolve(this.transactionsHistory)
 }
 
 module.exports = Coin
