@@ -68,8 +68,8 @@ Key.prototype.getBalanceSat = function (coinName) {
   return this.coins[coinName].balanceSat
 }
 
-Key.prototype.getTransactions = function (coinName) {
-  return this.coins[coinName].transactions
+Key.prototype.getTransactionsHistory = function (coinName) {
+  return this.coins[coinName].transactionsHistory
 }
 
 Key.prototype.getUTXO = function (coinName) {
@@ -154,6 +154,20 @@ Key.prototype.refreshBalance = callbackify(function () {
       this.coins[c].balanceSat = res.balanceSat
       return Promise.resolve({coinName: c, res: res})
     }))
+  }
+
+  return Promise.allSettled(p)
+})
+
+Key.prototype.refreshTransactions = callbackify(function () {
+  let p = []
+
+  for (let c in this.coins) {
+    if (!this.coins.hasOwnProperty(c)) {
+      continue
+    }
+    let coin = this.coins[c]
+    p.push(coin.refreshTransactions())
   }
 
   return Promise.allSettled(p)

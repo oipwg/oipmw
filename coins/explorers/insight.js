@@ -104,9 +104,10 @@ Insight.prototype.getInfo = callbackify(function (address) {
     .then(() => simpleGET(this.apiUrl + '/addr/' + address))
 })
 
-Insight.prototype.getTransactions = callbackify(function (address) {
+Insight.prototype.getTransactions = callbackify(function (address, page) {
+  page = page || 0
   return this.init()
-    .then(() => simpleGET(this.apiUrl + '/addrs/' + address + '/txs'))
+    .then(() => simpleGET(this.apiUrl + '/txs?address=' + address + '&pageNum=' + page))
 })
 
 module.exports = Insight

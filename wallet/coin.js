@@ -30,7 +30,7 @@ function Coin (coinName, privKey, stxo) {
   this.address = this.ecKey.getAddress().toString()
   this.scriptPubKey = bitcoin.address.toOutputScript(this.address, this.coinInfo.network)
   this.balanceSat = 0
-  this.transactions = []
+  this.transactionsHistory = {confirmed: [], queued: [], unconfirmed: []}
   this.utxo = []
   this.stxo = (stxo || [])
   this.pq = new PaymentQueue(this)
@@ -318,6 +318,45 @@ Coin.prototype.getBestUnspent = function (amountSat) {
       txo: txo
     }
   }
+}
+
+Coin.prototype.refreshTransactions = function () {
+  this.transactionsHistory.queued = []
+  this.transactionsHistory.unconfirmed = []
+
+  this.coinInfo.explorer.getTransactions(this.address, 0).then((res) => {
+    this.transactionsHistory.confirmed = res
+
+    for (let st of this.stxo) {
+      this.transactionsHistory.unconfirmed.push({
+        txid: st.txid,
+        to: st.address,
+        amount: st.amount,
+        satoshis: st.satoshis,
+        timestamp: st.ts
+      })
+    }
+
+    for (let qt of this.pq.q) {
+      let thq = {
+        to: [],
+        from: this.address,
+        amount: qt.amountSat / this.coinInfo.satPerCoin,
+        satoshis: qt.amountSat
+      }
+
+      for (let o in qt.outputSat) {
+        if (!qt.outputSat.hasOwnProperty(o)) {
+          continue
+        }
+        thq.to.push(o)
+      }
+
+      this.transactionsHistory.queued.push(thq)
+    }
+  })
+
+  return Promise.resolve(this.transactionsHistory)
 }
 
 module.exports = Coin

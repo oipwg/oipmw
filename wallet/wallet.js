@@ -227,9 +227,18 @@ Wallet.prototype.refreshUnspent = callbackify(function () {
   return Promise.all(p)
 })
 
+Wallet.prototype.refreshTransactions = callbackify(function () {
+  let p = []
+
+  for (let key of this.keys) {
+    p.push(key.refreshTransactions())
+  }
+
+  return Promise.all(p)
+})
+
 Wallet.prototype.refresh = callbackify(function () {
-  // return Promise.all([this.refreshBalances(), this.refreshUnspent()])
-  return this.refreshUnspent() // balance is calculated from the unspent set
+  return Promise.all([this.refreshTransactions(), this.refreshUnspent()])
 })
 
 function decryptWallet (wallet, password, cryptoConfig) {
