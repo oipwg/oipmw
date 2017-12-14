@@ -342,7 +342,8 @@ Coin.prototype.refreshTransactions = function () {
         to: [],
         from: this.address,
         amount: qt.amountSat / this.coinInfo.satPerCoin,
-        satoshis: qt.amountSat
+        satoshis: qt.amountSat,
+        txComment: qt.txComment
       }
 
       for (let o in qt.outputSat) {
