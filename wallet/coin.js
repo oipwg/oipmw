@@ -122,7 +122,7 @@ Coin.prototype.mergeTxo = function () {
 }
 
 Coin.prototype.signMessage = function (message) {
-  let signature = bMessage.sign(message, this.ecKey.d.toBuffer(32), this.ecKey.compressed, this.coinInfo.networks.messagePrefix)
+  let signature = bMessage.sign(message, this.ecKey.d.toBuffer(32), this.ecKey.compressed, this.coinInfo.network.messagePrefix)
   return signature.toString('base64')
 }
 
