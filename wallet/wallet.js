@@ -323,7 +323,7 @@ Wallet.prototype.listAddresses = function (coinName) {
   return addresses
 }
 
-Wallet.prototype.signMessgage = function (address, message) {
+Wallet.prototype.signMessage = function (address, message) {
   for (let k of this.keys) {
     if (k.containsAddress(address)) {
       return k.signMessage(address, message)
