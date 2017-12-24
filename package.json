@@ -23,7 +23,14 @@
     "isemail": "^3.0.0"
   },
   "browserify": {
-    "transform": ["babelify"]
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": ["es2015"]
+        }
+      ]
+    ]
   },
   "standard": {
     "env": [
