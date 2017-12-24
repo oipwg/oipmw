@@ -24,6 +24,9 @@
     "isemail": "^3.0.0",
     "oip-npm": "^1.6.13"
   },
+  "browserify": {
+    "transform": ["babelify"]
+  },
   "standard": {
     "env": [
       "jest"
