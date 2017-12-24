@@ -1,11 +1,15 @@
 exports.name = 'litecoin'
 exports.ticker = 'ltc'
 
+var litecoinFeePerKb = 100000
+var litecoinFeePerByte = litecoinFeePerKb / 1024
+var litecoinMinFee = litecoinFeePerKb
+
 exports.satPerCoin = 1e8
-exports.feePerKb = /* 0.00 */ 100000
-exports.feePerByte = this.feePerKb / 1024
+exports.feePerKb = litecoinFeePerKb
+exports.feePerByte = litecoinFeePerByte
 exports.maxFeePerByte = 100
-exports.minFee = this.feePerKb
+exports.minFee = litecoinMinFee
 exports.dust = 54600
 
 exports.txVersion = 1
@@ -16,7 +20,7 @@ exports.backupExplorers = []
 
 exports.estimateFee = function (tx) {
   let bytes = tx.virtualSize()
-  return Math.max(bytes * this.feePerByte, this.minFee)
+  return Math.max(bytes * litecoinFeePerByte, litecoinMinFee)
 }
 
 exports.network = require('bitcoinjs-lib').networks.litecoin

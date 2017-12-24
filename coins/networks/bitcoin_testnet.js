@@ -1,11 +1,15 @@
 exports.name = 'bitcoin_testnet'
 exports.ticker = 'tbtc'
 
+var tbitcoinFeePerKb = 100000
+var tbitcoinFeePerByte = tbitcoinFeePerKb / 1024
+var tbitcoinMinFee = tbitcoinFeePerKb
+
 exports.satPerCoin = 1e8
-exports.feePerKb = /* 0.00 */ 100000
-exports.feePerByte = this.feePerKb / 1024
+exports.feePerKb = tbitcoinFeePerKb
+exports.feePerByte = tbitcoinFeePerByte
 exports.maxFeePerByte = 100
-exports.minFee = this.feePerKb
+exports.minFee = tbitcoinMinFee
 exports.dust = 546
 
 exports.txVersion = 1
@@ -16,7 +20,7 @@ exports.backupExplorers = []
 
 exports.estimateFee = function (tx) {
   let bytes = tx.virtualSize()
-  return Math.max(bytes * this.feePerByte, this.minFee)
+  return Math.max(bytes * tbitcoinFeePerByte, tbitcoinMinFee)
 }
 
 exports.network = require('bitcoinjs-lib').networks.testnet

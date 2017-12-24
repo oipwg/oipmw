@@ -1,11 +1,15 @@
 exports.name = 'florincoin'
 exports.ticker = 'flo'
 
+var florincoinFeePerKb = 100000
+var florincoinFeePerByte = florincoinFeePerKb / 1024
+var florincoinMinFee = florincoinFeePerKb
+
 exports.satPerCoin = 1e8
-exports.feePerKb = /* 0.00 */ 100000
-exports.feePerByte = this.feePerKb / 1024
+exports.feePerKb = florincoinFeePerKb
+exports.feePerByte = florincoinFeePerByte
 exports.maxFeePerByte = 100
-exports.minFee = this.feePerKb
+exports.minFee = florincoinMinFee
 exports.dust = 100000
 
 exports.txVersion = 2
@@ -16,7 +20,7 @@ exports.backupExplorers = []
 
 exports.estimateFee = function (tx, extraBytes) {
   let bytes = tx.virtualSize() + (extraBytes || 0)
-  return Math.max(bytes * this.feePerByte, this.minFee)
+  return Math.max(bytes * florincoinFeePerByte, florincoinMinFee)
 }
 
 exports.network = {

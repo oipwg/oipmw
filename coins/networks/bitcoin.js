@@ -1,11 +1,15 @@
 exports.name = 'bitcoin'
 exports.ticker = 'btc'
 
+var bitcoinFeePerKb = 100000
+var bitcoinFeePerByte = bitcoinFeePerKb / 1024
+var bitcoinMinFee = bitcoinFeePerKb
+
 exports.satPerCoin = 1e8
-exports.feePerKb = /* 0.00 */ 100000
-exports.feePerByte = this.feePerKb / 1024
+exports.feePerKb = bitcoinFeePerKb
+exports.feePerByte = bitcoinFeePerByte
 exports.maxFeePerByte = 100
-exports.minFee = this.feePerKb
+exports.minFee = bitcoinMinFee
 exports.dust = 546
 
 exports.txVersion = 1
@@ -20,7 +24,7 @@ exports.backupExplorers = [
 
 exports.estimateFee = function (tx) {
   let bytes = tx.virtualSize()
-  return Math.max(bytes * this.feePerByte, this.minFee)
+  return Math.max(bytes * bitcoinFeePerByte, bitcoinFeePerKb)
 }
 
 exports.network = require('bitcoinjs-lib').networks.bitcoin
