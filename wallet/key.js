@@ -49,6 +49,8 @@ Key.prototype.addCoin = function (coinName) {
     }
 
     this.coins[coinName] = new Coin(coinName, this.privKey)
+
+    if (!this.multiwalletAddress) { this.multiwalletAddress = this.coins[coinName].getShortMultiwalletAddress() }
   }
 }
 
@@ -58,6 +60,10 @@ Key.prototype.hasCoin = function (coinName) {
 
 Key.prototype.getAddress = function (coinName) {
   return this.coins[coinName].address
+}
+
+Key.prototype.getShortMultiwalletAddress = function () {
+  return this.multiwalletAddress
 }
 
 Key.prototype.getBalance = function (coinName) {

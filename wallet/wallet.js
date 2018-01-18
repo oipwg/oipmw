@@ -174,6 +174,18 @@ Wallet.prototype.getPrivateKey = function (address) {
   return ''
 }
 
+Wallet.prototype.getKeyFromAddress = function (address) {
+  if (isValidAddress(address)) {
+    for (let key of this.keys) {
+      let name = key.getNameFromAddress(address)
+      if (name !== '') {
+        return key
+      }
+    }
+  }
+  return ''
+}
+
 Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount, options) {
   let {
     fee = 0
@@ -307,6 +319,23 @@ Wallet.prototype.newAddress = function (coinName) {
   this.keys.push(k)
 
   return keyPair.getAddress()
+}
+
+Wallet.prototype.newShortMWAddress = function () {
+  let supportedCoins = networks.listSupportedCoins()
+  let shortMWAddress
+
+  for (var i in supportedCoins) {
+    let net = networks.getNetwork(supportedCoins[i])
+    let keyPair = bitcoin.ECPair.makeRandom({network: net})
+    let k = new Key(keyPair.toWIF(), supportedCoins[i])
+
+    this.keys.push(k)
+
+    if (!shortMWAddress) { shortMWAddress = k.getShortMultiwalletAddress() }
+  }
+
+  return shortMWAddress
 }
 
 Wallet.prototype.listAddresses = function (coinName) {

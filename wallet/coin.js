@@ -1,5 +1,6 @@
 const bitcoin = require('bitcoinjs-lib')
 const bcrypto = bitcoin.crypto
+const base58 = bitcoin.base58
 const bMessage = require('bitcoinjs-message')
 const callbackify = require('callbackify')
 const coinNetworks = require('../coins/networks')
@@ -34,6 +35,10 @@ function Coin (coinName, privKey, stxo) {
   this.utxo = []
   this.stxo = (stxo || [])
   this.pq = new PaymentQueue(this)
+}
+
+Coin.prototype.getShortMultiwalletAddress = function () {
+  return base58.encode(this.ecKey.getPublicKeyBuffer())
 }
 
 Coin.prototype.toJSON = function () {
