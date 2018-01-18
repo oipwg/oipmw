@@ -7,3 +7,4 @@ coverage/
 
 # Apple
 .DS_Store
+package-lock.json
