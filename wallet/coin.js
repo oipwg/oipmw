@@ -1,6 +1,6 @@
 const bitcoin = require('bitcoinjs-lib')
 const bcrypto = bitcoin.crypto
-const bs58 = require('bs58')
+const base64ab = require('base64-arraybuffer')
 const bMessage = require('bitcoinjs-message')
 const callbackify = require('callbackify')
 const coinNetworks = require('../coins/networks')
@@ -38,7 +38,7 @@ function Coin (coinName, privKey, stxo) {
 }
 
 Coin.prototype.getShortMultiwalletAddress = function () {
-  return bs58.encode(this.ecKey.getPublicKeyBuffer())
+  return base64ab.encode(this.ecKey.getPublicKeyBuffer())
 }
 
 Coin.prototype.toJSON = function () {
