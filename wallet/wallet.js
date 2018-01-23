@@ -219,6 +219,50 @@ Wallet.prototype.payTo = callbackify.variadic(function (from, toAddress, amount,
   return key.payTo(coinName, toAddress, amount, options)
 })
 
+Wallet.prototype.payToMulti = callbackify.variadic(function (from, options) {
+  let {
+    fee = 0
+  } = options
+
+  let key, coinName
+
+  if (typeof options === 'undefined') {
+    return Promise.reject(new Error('No options passed, options is required!'))
+  }
+
+  if (isValidAddress(from)) {
+    for (let k of this.keys) {
+      let name = k.getNameFromAddress(from)
+      if (name !== '') {
+        key = k
+        coinName = name
+      }
+    }
+  } else {
+    let totalAmount
+
+    coinName = from
+
+    for (let amount of options.outputs) {
+      totalAmount += amount
+    }
+
+    for (let k of this.keys) {
+      if (k.hasCoin(coinName)) {
+        if (k.getBalance(coinName) > ((totalAmount + fee) || totalAmount)) {
+          key = k
+        }
+      }
+    }
+  }
+
+  if (key === undefined) {
+    return Promise.reject(new Error('No key found for ' + from))
+  }
+
+  return key.payToMulti(coinName, options)
+})
+
 Wallet.prototype.refreshBalances = callbackify(function () {
   let p = []
 
