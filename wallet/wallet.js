@@ -435,4 +435,10 @@ Wallet.prototype.addUnconfirmedRawTransaction = function (txinfo, coinName) {
   }
 }
 
+Wallet.prototype.sendAllQueue = function () {
+  for (let k of this.keys) {
+    k.sendQueue()
+  }
+}
+
 module.exports = {createNewWallet: callbackify(createNewWallet), Wallet}
