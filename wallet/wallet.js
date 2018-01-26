@@ -22,6 +22,7 @@ function Wallet (identifier, password, defaultCrypto) {
   }
   this.sharedKey = ''
   this.keys = []
+  this.extraInfo = {}
 }
 
 function createNewWallet (options) {
@@ -100,6 +101,8 @@ Wallet.prototype.load = callbackify(function () {
         } else {
           this.keys = addressesToKeys(dec.addresses)
         }
+
+        if (dec.extraInfo) { this.extraInfo = dec.extraInfo }
       }
     })
   })
@@ -439,6 +442,14 @@ Wallet.prototype.sendAllQueue = function () {
   for (let k of this.keys) {
     k.sendQueue()
   }
+}
+
+Wallet.prototype.getExtraInfo = function () {
+  return this.extraInfo
+}
+
+Wallet.prototype.setExtraInfo = function (newInfo) {
+  if (newInfo) { this.extraInfo = newInfo }
 }
 
 module.exports = {createNewWallet: callbackify(createNewWallet), Wallet}
