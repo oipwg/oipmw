@@ -1,12 +1,13 @@
 const CryptoJS = require('crypto-js')
 const bitcoin = require('bitcoinjs-lib')
-const flovault = require('./flovault')
+const walletKeystore = require('./walletKeystore')
 const callbackify = require('callbackify')
 const Key = require('./key')
 const networks = require('../coins/networks')
+const config = require('./config')
 const isValidAddress = require('../util').validation.isValidAddress
 
-function Wallet (identifier, password, defaultCrypto) {
+function Wallet (identifier, password, defaultCrypto, newConf) {
   if (!(this instanceof Wallet)) {
     console.warn('Non constructor call made to Wallet.constructor')
     return new Wallet(...arguments)
@@ -23,6 +24,12 @@ function Wallet (identifier, password, defaultCrypto) {
   this.sharedKey = ''
   this.keys = []
   this.extraInfo = {}
+
+  if (newConf){
+    config = Object.assign({}, config, newConf);
+  }
+
+  walletKeystore.setURL(config.walletKeystoreURL)
 }
 
 function createNewWallet (options) {
@@ -37,12 +44,12 @@ function createNewWallet (options) {
     coins = [coins]
   }
 
-  return flovault.create(email).then((fv) => {
-    if (fv.error !== false) {
-      return Promise.reject(new Error('Flovault create failed: ' + fv.errorText))
+  return walletKeystore.create(email).then((wk) => {
+    if (wk.error !== false) {
+      return Promise.reject(new Error('WalletKeystore create failed: ' + wk.errorText))
     }
 
-    let {identifier, shared_key: sk} = fv
+    let {identifier, shared_key: sk} = wk
     let wal = new Wallet(identifier, password, defaultCrypto)
 
     wal.sharedKey = sk
@@ -67,7 +74,7 @@ Wallet.prototype.load = callbackify(function () {
     return Promise.reject(err)
   }
 
-  return flovault.checkLoad(this.identifier).then((res) => {
+  return walletKeystore.checkLoad(this.identifier).then((res) => {
     if (res.encryption_settings.algo === 'aes') {
       this.cryptoConfig = {
         mode: CryptoJS.mode.CBC,
@@ -86,7 +93,7 @@ Wallet.prototype.load = callbackify(function () {
       }
     }
 
-    return flovault.load(this.identifier).then((res) => {
+    return walletKeystore.load(this.identifier).then((res) => {
       if (res.error === false) {
         let dec = decryptWallet(res.wallet, this.password, this.cryptoConfig)
 
@@ -121,7 +128,7 @@ Wallet.prototype.store = callbackify(function () {
     wallet_data: encryptedWallet
   }
 
-  return flovault.store(data)
+  return walletKeystore.store(data)
 })
 
 Wallet.prototype.getBalance = function (coinName) {

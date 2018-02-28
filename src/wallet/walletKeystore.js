@@ -2,9 +2,13 @@ const axios = require('axios')
 const callbackify = require('callbackify')
 const validation = require('../util').validation
 
-let ax = axios.create({
-  baseURL: 'https://flovault.alexandria.io/wallet/'
-})
+let ax;
+
+function setURL (newURL) {
+  ax = axios.create({
+    baseURL: newURL
+  })
+}
 
 function create (email) {
   if (email !== '' && !validation.isValidEmail(email)) {
@@ -145,6 +149,7 @@ function store (data) {
 }
 
 module.exports = {
+  setURL,
   create: callbackify(create),
   checkLoad: callbackify(checkLoad),
   load: callbackify(load),
