@@ -1,6 +1,6 @@
 {
   "name": "oipmw",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "OIP Multi Wallet",
   "main": "lib/oipmw.js",
   "scripts": {

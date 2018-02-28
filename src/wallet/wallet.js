@@ -7,6 +7,8 @@ const networks = require('../coins/networks')
 let config = require('./config')
 const isValidAddress = require('../util').validation.isValidAddress
 
+walletKeystore.setURL(config.walletKeystoreURL)
+
 function Wallet (identifier, password, defaultCrypto, newConf) {
   if (!(this instanceof Wallet)) {
     console.warn('Non constructor call made to Wallet.constructor')
@@ -37,11 +39,16 @@ function createNewWallet (options) {
     email = '',
     password = '',
     coins = 'florincoin',
-    defaultCrypto = 'florincoin'
+    defaultCrypto = 'florincoin',
+    extraOpts = {}
   } = options
 
   if (!Array.isArray(coins)) {
     coins = [coins]
+  }
+
+  if (extraOpts.walletKeystoreURL) {
+    walletKeystore.setURL(extraOpts.walletKeystoreURL)
   }
 
   return walletKeystore.create(email).then((wk) => {
@@ -50,7 +57,7 @@ function createNewWallet (options) {
     }
 
     let {identifier, shared_key: sk} = wk
-    let wal = new Wallet(identifier, password, defaultCrypto)
+    let wal = new Wallet(identifier, password, defaultCrypto, extraOpts)
 
     wal.sharedKey = sk
     wal.newAddress(coins[0])
