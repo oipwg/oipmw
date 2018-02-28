@@ -4,7 +4,7 @@ const walletKeystore = require('./walletKeystore')
 const callbackify = require('callbackify')
 const Key = require('./key')
 const networks = require('../coins/networks')
-const config = require('./config')
+let config = require('./config')
 const isValidAddress = require('../util').validation.isValidAddress
 
 function Wallet (identifier, password, defaultCrypto, newConf) {
@@ -25,8 +25,8 @@ function Wallet (identifier, password, defaultCrypto, newConf) {
   this.keys = []
   this.extraInfo = {}
 
-  if (newConf){
-    config = Object.assign({}, config, newConf);
+  if (newConf) {
+    config = Object.assign({}, config, newConf)
   }
 
   walletKeystore.setURL(config.walletKeystoreURL)

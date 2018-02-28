@@ -2,7 +2,7 @@ const axios = require('axios')
 const callbackify = require('callbackify')
 const validation = require('../util').validation
 
-let ax;
+let ax
 
 function setURL (newURL) {
   ax = axios.create({

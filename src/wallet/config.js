@@ -1,3 +1,3 @@
 module.exports = {
-	walletKeystoreURL: "https://flovault.alexandria.io/wallet/"
+  walletKeystoreURL: 'https://flovault.alexandria.io/wallet/'
 }
